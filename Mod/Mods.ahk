@@ -22,68 +22,37 @@
 */
 
 #Include Mod\Maintenance.ahk
-#Include Mod\ChampionshipMenuing.ahk
 #Include Mod\CheckTyres.ahk
 #Include Mod\CheckStuck.ahk
 #Include Mod\Hairpin.ahk
-#Include Mod\Chicane.ahk
 #Include Mod\CheckTurn.ahk
+#Include Mod\RemotePlaySizer.ahk
 
 _mod_names :=
 ( LTrim Join
   [
-  "Championship Menus",
   "Check Tyres",
   "Maintenance",
   "Check Stuck",
-  "Post Hairpin",
-  "Chicane",
+  "Check Hairpin",
   "Check Turns",
+  "Remote Play Enlarge",
   "Debug Mode"
   ]
 )
 
 _mod_vars =
 ( LTrim Join|
-  __enableChampionshipMenuing_mod__
   __enableCheckTyres_mod__
   __enableMaintenance_mod__
   __enableCheckStuck_mod__
   __enableHairpin_mod__
-  __enableChicane_mod__
   __enableTurn_mod__
+  __enableRemotePlaySizer_mod__
   debug_mode
 )
 
-; Load mod settings
-Loop, Parse, _mod_vars, |
-{
-  IniRead, %A_LoopField%, config.ini, Mods, %A_LoopField%, 0
-}
-
-; Mods Gui Setup
-Gui, 3: -MaximizeBox
-Gui, 3: -MinimizeBox
-Gui, 3: Color, c535770, c6272a4
-Gui, 3: Font, c11f s9 Bold
-;Gui, 3: Add, GroupBox, w200 h100, Mod List
-
-Loop, Parse, _mod_vars, |
-{
-
-  if ( %A_LoopField% = 1){
-    Gui, 3: Add, Checkbox, Checked v%A_LoopField%, % _mod_names[A_Index]
-  }
-  else {
-    Gui, 3: Add, Checkbox, v%A_LoopField%, % _mod_names[A_Index]
-  }
-
-}
-
-Gui, 3: Add, Button, gSaveMods, Save
-
 GoTo EndModsDef
-; End of Gui Setup
 
 SaveMods:
   Gui, 3:Submit

@@ -22,11 +22,11 @@ TurnTolerance := 10
 
 GoTo EndTurnDef
 
-CheckTurn(x,y, b_size := 1)
+CheckTurn(x, y, b_size := 2)
 {
   color_player := 0xDE6E70
   if (__enableTurn_mod__ = 0){
-    return
+    return false
   }
 
   turn_complete := false
@@ -40,15 +40,36 @@ CheckTurn(x,y, b_size := 1)
       ToolTipper("Turn" td)
       if (td < 20 ){
         turn_complete := true
-
         break
       }
     }
-
   } until turn_complete = true
-  ToolTipper("Turn Found")
 
-  return
+  ToolTipper("Turn Found")
+  return turn_complete
+}
+
+CheckTurnQuick(x, y, color_to_check, b_size := 2)
+{
+  if (__enableTurn_mod__ = 0){
+    return false
+  }
+
+  turn_complete := false
+
+  tc := BitGrab(x, y, b_size)
+  for i, c in tc
+  {
+    td := Distance(c, color_to_check)
+    ToolTipper("Turn" td)
+    if (td < 20 ){
+      turn_complete := true
+      break
+    }
+  }
+
+  ToolTipper("Turn Found")
+  return turn_complete
 }
 
 ResetTurn:

@@ -1,17 +1,11 @@
-__enableChampionshipMenuing_mod__ := 0
-
 GoTo EndChampionshipMenuingDef
 
-Menu:
-	;ToolTip, Menuing, 100, 100, Screen
-	if(__enableChampionshipMenuing_mod__ = 0){
-		return
-	}
+ChampionshipMenu:
 
 	loop
 	{
 		break_point := false
-		c2 := BitGrab(pix2x, pix2y, box_size)
+		c2 := BitGrab(pix2x, pix2y+remote_play_offsetY, box_size)
 		for i, c in c2
 		{
 			d2 := Distance(c, color_check2)
@@ -45,21 +39,22 @@ Menu:
 	}
 	Sleep, %ps_load_time2%
 
-	;Conduct Maintenance here.
-	CheckForOilChange := Mod(A_Index, 29)
-	CheckForMaintenance := Mod(A_Index, 107)
-
 	;ToolTipper("CheckForOilChange " CheckForOilChange "`nCheckForMaintenance " CheckForMaintenance, 300, 100)
 
-	ifEqual, CheckForOilChange, 0
-	{
-		gosub, DoOilChange
-	}
-
-	ifEqual, CheckForMaintenance, 0
+	if (CheckForMaintenance = 0)
 	{
 		gosub, DoMaintenance
+		race_count_maintenance := 0
 	}
+	else if (CheckForOilChange = 0)
+	{
+		gosub, DoOilChange
+		race_count_oil := 0
+	}
+
+	race_count_maintenance++
+	race_count_oil++
+
 	Press_Down()
 	Sleep, 100
 	loop, %menu_loops%
@@ -76,14 +71,9 @@ Menu:
 	}
 	Sleep, %ps_load_time3%
 
-	;	loop, 2{
-	;        gosub, PressX
-	;        Sleep, 500
-	;    }
-	Gosub, PressX
+	Press_X()
 	Sleep, 500
-	Gosub, PressX
-
+	Press_X() 
 return
 
 EndChampionshipMenuingDef:

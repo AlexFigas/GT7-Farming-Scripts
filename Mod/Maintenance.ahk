@@ -8,10 +8,6 @@ return
 
 DoOilChange:
 
-  if (__enableMaintenance_mod__ = 0){
-    return
-  }
-
   if (SysCheck = 1) {
     Sleep, 1000
     Press_O()
@@ -102,10 +98,6 @@ return
 ;This will do complete maintenance on the car including oil, engine and body. will leave user at race menu to resume.
 DoMaintenance:
 
-  if (__enableMaintenance_mod__ = 0){
-    return
-  }
-
   if (SysCheck = 1) { ; PS5
     Sleep, 1000
     controller.Buttons.Circle.SetState(true)
@@ -123,10 +115,14 @@ DoMaintenance:
     controller.Dpad.SetState("None")
     Sleep, 200
 
-    loop, 2 {
-      gosub, PressX
-      Sleep, 1000
+    Press_X()
+    Sleep, 1000
+    loop, 2 { ; Makes sure it gets into the oil menu regardless the cursor starting point
+      Press_Left(140)
+      Sleep, 200
     }
+    Press_X()
+    Sleep, 1000
 
     Sleep, 2000
     controller.Dpad.SetState("Down")

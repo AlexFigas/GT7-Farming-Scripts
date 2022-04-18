@@ -20,12 +20,12 @@ CheckHairpin:
     return
   }
 
-  tc := BitGrab(hairpinX, hairpinY,2)
+  tc := BitGrab(hairpinX, hairpinY,3)
 
   for i, c in tc
   {
     td := Distance(c, color_player)
-    if (td < 9 ){
+    if (td < 20 ){
       hairpin_complete := true
       hairpinCount += 1
       ToolTip, Hairpin Found current state: %hairpinCount%, 100, 100, Screen

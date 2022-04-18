@@ -20,7 +20,7 @@ git clone
 
 If some error pops up, consider unblocking all the files clicking on the file, then properties, and then unblock (you'll have to do it one by one).
 
-### Version 0.9999.5
+### Version 0.9999.5 forward
 The setup folder contains all the settings you need to make sure the script works.
 
 Run the GT7AHK .exe or .ahk file to run the script.
@@ -29,9 +29,16 @@ Make sure you hover the "Retry" button when you start it.
 
 All mods can be selected one by one.
 The PanAm includes:
-    Championship Menus --> MUST BE ENABLED
-    Check Turns --> MUST BE ENABLED    
-    Maintenance --> this isn't a must, but if you're running the script for longer than 3 hours nonstop, it's recommended.
+    
+    - Championship Menus --> MUST BE ENABLED
+    
+    - Check Turns --> MUST BE ENABLED    
+    
+    - Maintenance --> this isn't a must, but if you're running the script for longer than 3 hours nonstop, it's recommended.
+
+Also make sure you're in first person view.
+
+
 
 The other mods are for the upcoming Tokyo script, so they don't matter, can be disabled.
 
