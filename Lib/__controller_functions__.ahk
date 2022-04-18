@@ -62,6 +62,22 @@ Press_Square(delay:=200){
   return
 }
 
+; Press R1 button
+Press_L1(delay:=200){
+  controller.Buttons.L1.SetState(true)
+  DllCall("Sleep", "UInt", delay)
+  controller.Buttons.L1.SetState(false)
+  return
+}
+
+; Press R1 button
+Press_R1(delay:=200){
+  controller.Buttons.R1.SetState(true)
+  DllCall("Sleep", "UInt", delay)
+  controller.Buttons.R1.SetState(false)
+  return
+}
+
 ; Press Right on D-pad
 Press_Right(delay:=200){
   controller.Dpad.SetState("Right")
@@ -106,6 +122,25 @@ Nitrous_Off(){
   controller.Buttons.RS.SetState(false)
 }
 
+Accel_On(control:=100){
+  controller.Buttons.R2.SetState(true)
+  controller.Axes.RT.SetState(control)
+}
+
+Accel_Off(){
+  controller.Buttons.R2.SetState(false)
+  controller.Axes.RT.SetState(0)
+}
+
+Brake_On(control:=100){
+  controller.Buttons.L2.SetState(true)
+  controller.Axes.LT.SetState(control)
+}
+
+Brake_Off(){
+  controller.Buttons.L2.SetState(false)
+  controller.Axes.LT.SetState(0)
+}
 ; given time t in miliseconds, turn right for that long, with intensity being how much the turn button is held for
 Turn:
   t0 := A_TickCount

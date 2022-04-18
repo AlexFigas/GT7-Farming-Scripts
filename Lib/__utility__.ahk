@@ -123,3 +123,10 @@ ConvertARGB(ARGB, Convert := 0)
 
     return RGB
 }
+
+ToolTipper(msg, x := 100, y := 100)
+{
+    if (debug_mode = 1)
+        ToolTip, %msg%, x, y, Screen
+    return
+}
