@@ -13,10 +13,10 @@ I'm one of the developers that is contributing for this project (mainly PS4 and 
 
 - Clone the repo:
 ```
-git clone 
+git clone https://github.com/AlexFigas/GT7-Farming-Scripts.git
 ```
 
-- Execute de AHK or EXE (if available). 
+- Execute the main AHK or EXE (if available), should be called GT7AHK on the latest versions and PanAmerican1_v0.99 on version 0.99. 
 
 If some error pops up, consider unblocking all the files clicking on the file, then properties, and then unblock (you'll have to do it one by one).
 
