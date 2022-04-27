@@ -41,7 +41,12 @@ menu_s := 1
 box_size := 3
 color_check1 :=  0xBBE044
 color_check2 :=  0xBBE044
+color_check3 :=  0x5A79BA		; used to detect clean races
 color_2_delay := 500
+racecounter := 0
+cleanrace := 0
+cleanpercent := (cleanrace / racecounter)*100
+credit := (racecounter * 70 + cleanrace * 35)/1000
 
 color_tyre_overheat := 0xD42304
 tyres_overheating := false
@@ -55,8 +60,9 @@ pix1x := 458
 pix1y := 185
 pix2x := 607
 pix2y := 390
+pix3x := 306 
+pix3y := 277
 tolerance := 20
-bm_delay := 100
 box_size := 2
 
 ps_load_time1 := 2000
@@ -141,6 +147,7 @@ ButtonStart:
     CoordMode, Pixel, Screen
     CoordMode, ToolTip, Screen
     sleep 1000
+	starttime := A_TickCount
     gosub, AFKLoop
 ; ---------- Gui Setup End-------------
 
@@ -149,6 +156,7 @@ AFKLoop:
     loop{
 		gosub, ResetControllerState
 		gosub, PressX
+		gosub, CleanRaceCounter
         gosub, Race
         gosub, Menu
     }
@@ -381,8 +389,17 @@ DoMaintenance:
 	return
 
 
+CleanRaceCounter:
+	credit := (racecounter * 0.07 + cleanrace * 0.035)
+    cleanpercent := (cleanrace / racecounter)*100
+    income := credit / (A_TickCount - starttime) * 3600000
+	SetFormat, FloatFast, 0.2
+	SetFormat, IntegerFast, d
+	ToolTip,  Race Counts: %racecounter%  Clean Races: %cleanrace% `nAverage Clean Runs: %cleanpercent%`%`nTotal Earning: %credit%M  Average %income%M/hr, 10, 50, screen
+	return
+
+
 Race:
-    Tooltip
 	;CheckForOilChange := Mod(abs(60 - A_Index), 60)
 	;SetFormat, IntegerFast, d
 	;CheckForMaintenance := Mod(abs(360 - A_Index), 360)
@@ -411,21 +428,21 @@ Race:
 	controller.Axes.LX.SetState(90)
 	Sleep, 2000
 	controller.Axes.LX.SetState(66)
-	controller.Axes.RT.SetState(96)		; adjust the gas to speed up or slow down the car so that you don't run into the back markers by lap 5. Lower the value until you don't run into any cars after 1st lap
+	controller.Axes.RT.SetState(95)		; adjust the gas to speed up or slow down the car so that you don't run into the back markers by lap 5. Lower the value until you don't run into any cars after 1st lap
 	;controller.Dpad.SetState("None") 
 
     loop {
-        break_point := false
+        break_point1 := false
         c1 := BitGrab(pix1x, pix1y, box_size)
         for i, c in c1
         {
             d1 := Distance(c, color_check1)
             if (d1 < tolerance ){
-                break_point := true
+                break_point1 := true
                 break
             }
         }
-        if (break_point)
+        if (break_point1 = true)
             break
 		if (race_complete) {
 			controller.Dpad.SetState("Right") 
@@ -437,7 +454,10 @@ Race:
 	;ToolTip, Found color 1, 100, 100, Screen
 	SetTimer, RetryRace, off
 	gosub, ResetControllerState
-	Sleep, 500
+    sleep, 100
+    gosub, PressX
+    sleep, 800
+    gosub, PressX
 	return
 
 
@@ -453,22 +473,39 @@ TurnOffNitro:
 
 Menu:
 	;Tooltip
+	loop 80 
+	{
+		PixelSearch, x, y, pix3x-20, pix3y-20, pix3x+20, pix3y+20, %color_check3%, 32, Fast RGB
+        If (ErrorLevel = 0) {
+			cleanrace++
+			;ToolTip, Clean Race Detected, 100, 100, Screen
+			break
+		}
+        else {
+			;ToolTip, Searching for Clean Race, 100, 100, Screen
+		}
+    }
+
+
     loop {
-        break_point := false
+        break_point2 := false
         c2 := BitGrab(pix2x, pix2y, box_size)
         for i, c in c2
         {
             d2 := Distance(c, color_check2)
             if (d2 < tolerance ){
-                break_point := true
+                break_point2 := true
                 break
             }
         }
-        if (break_point)
+        if (break_point2 = true)
             break
         gosub, PressX
         sleep, %color_2_delay%
     }
+	
+	racecounter++
+
     Sleep, 200
     ControlSend,, {Esc down}, ahk_id %id% 
     Sleep, 200
@@ -481,19 +518,6 @@ Menu:
     gosub, PressX
     Sleep, %ps_load_time1%
 	gosub, PressX
-	
-/*	
-	;Conduct Maintenance here.
-	if (CheckForMaintenance = 0) {
-		gosub, DoMaintenance
-	}
-	else {
-		if (CheckForOilChange = 0) {
-			gosub, DoOilChange
-		}
-	}
-	
-*/
 	return
 
 
