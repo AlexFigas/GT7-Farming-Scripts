@@ -17,7 +17,7 @@ CLR_LoadLibrary(AssemblyName, AppDomain=0)
 		if assembly := AppDomain.Load_2(AssemblyName)
 			break
 		static null := ComObject(13,0)
-		args := ComObjArray(0xC, 1), args[0] := AssemblyName
+		args := ComObjArray(0xC, 1),  args[0] := AssemblyName
 		typeofAssembly := AppDomain.GetType().Assembly.GetType()
 		if assembly := typeofAssembly.InvokeMember_3("LoadWithPartialName", 0x158, null, null, args)
 			break
@@ -32,13 +32,13 @@ CLR_CreateObject(Assembly, TypeName, Args*)
 {
 	if !(argCount := Args.MaxIndex())
 		return Assembly.CreateInstance_2(TypeName, true)
-
+	
 	vargs := ComObjArray(0xC, argCount)
 	Loop % argCount
 		vargs[A_Index-1] := Args[A_Index]
-
+	
 	static Array_Empty := ComObjArray(0xC,0), null := ComObject(13,0)
-
+	
 	return Assembly.CreateInstance_3(TypeName, true, 0, null, vargs, null, Array_Empty)
 }
 
@@ -77,13 +77,13 @@ CLR_Start(Version="") ; returns ICorRuntimeHost*
 	EnvGet SystemRoot, SystemRoot
 	if Version =
 		Loop % SystemRoot "\Microsoft.NET\Framework" (A_PtrSize=8?"64":"") "\*", 2
-		if (FileExist(A_LoopFileFullPath "\mscorlib.dll") && A_LoopFileName > Version)
-		Version := A_LoopFileName
+			if (FileExist(A_LoopFileFullPath "\mscorlib.dll") && A_LoopFileName > Version)
+				Version := A_LoopFileName
 	if DllCall("mscoree\CorBindToRuntimeEx", "wstr", Version, "ptr", 0, "uint", 0
-			, "ptr", CLR_GUID(CLSID_CorRuntimeHost, "{CB2F6723-AB3A-11D2-9C40-00C04FA30A3E}")
-		, "ptr", CLR_GUID(IID_ICorRuntimeHost, "{CB2F6722-AB3A-11D2-9C40-00C04FA30A3E}")
+	, "ptr", CLR_GUID(CLSID_CorRuntimeHost, "{CB2F6723-AB3A-11D2-9C40-00C04FA30A3E}")
+	, "ptr", CLR_GUID(IID_ICorRuntimeHost,  "{CB2F6722-AB3A-11D2-9C40-00C04FA30A3E}")
 	, "ptr*", RtHst) >= 0
-	DllCall(NumGet(NumGet(RtHst+0)+10*A_PtrSize), "ptr", RtHst) ; Start
+		DllCall(NumGet(NumGet(RtHst+0)+10*A_PtrSize), "ptr", RtHst) ; Start
 	return RtHst
 }
 
@@ -106,32 +106,32 @@ CLR_CompileAssembly(Code, References, ProviderAssembly, ProviderType, AppDomain=
 {
 	if !AppDomain
 		AppDomain := CLR_GetDefaultDomain()
-
+	
 	if !(asmProvider := CLR_LoadLibrary(ProviderAssembly, AppDomain))
-		|| !(codeProvider := asmProvider.CreateInstance(ProviderType))
+	|| !(codeProvider := asmProvider.CreateInstance(ProviderType))
 	|| !(codeCompiler := codeProvider.CreateCompiler())
-	return 0
+		return 0
 
 	if !(asmSystem := (ProviderAssembly="System") ? asmProvider : CLR_LoadLibrary("System", AppDomain))
 		return 0
-
+	
 	; Convert | delimited list of references into an array.
 	StringSplit, Refs, References, |, %A_Space%%A_Tab%
 	aRefs := ComObjArray(8, Refs0)
 	Loop % Refs0
 		aRefs[A_Index-1] := Refs%A_Index%
-
+	
 	; Set parameters for compiler.
 	prms := CLR_CreateObject(asmSystem, "System.CodeDom.Compiler.CompilerParameters", aRefs)
-	, prms.OutputAssembly := FileName
-	, prms.GenerateInMemory := FileName=""
-	, prms.GenerateExecutable := SubStr(FileName,-3)=".exe"
-	, prms.CompilerOptions := CompilerOptions
+	, prms.OutputAssembly          := FileName
+	, prms.GenerateInMemory        := FileName=""
+	, prms.GenerateExecutable      := SubStr(FileName,-3)=".exe"
+	, prms.CompilerOptions         := CompilerOptions
 	, prms.IncludeDebugInformation := true
-
+	
 	; Compile!
 	compilerRes := codeCompiler.CompileAssemblyFromSource(prms, Code)
-
+	
 	if error_count := (errors := compilerRes.Errors).Count
 	{
 		error_text := ""
