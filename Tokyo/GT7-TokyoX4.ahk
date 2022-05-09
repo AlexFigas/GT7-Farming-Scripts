@@ -219,7 +219,7 @@ Gui, Font, S8 CDefault Bold, Verdana
 Gui, Add, Text, x10 y3 w620 h20 +BackgroundTrans, // TOKYO CONTROL CENTER
 Gui, Add, Statusbar, -Theme Backgroundeeeeee ;#eeeeee, no typo
 SB_SetParts(80,270,190)
-SB_SetText(" Tokyo X v3 ",1)
+SB_SetText(" Tokyo X4 ",1)
 SB_SetText(" by problemz.",4)
 
 switch size_remoteplay
@@ -611,7 +611,25 @@ Return
 			IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_lostY
 			SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant14.png,+x26 +y160,Detected:`n`nx: %pos_mouseX% | y: %pos_mouseY% `nColor: %color_lost%,11 - Safe spot,Detection Assistant
 			currentstep++
-			Sleep(2000)
+
+			loop 6 {
+				Press_Right()
+				Sleep(500)
+			}
+			loop 3 {
+				Sleep(2000)
+				Press_X()
+			}
+			Sleep(8000)
+			Press_X()
+			Sleep(4000)
+			Press_X()
+
+			Sleep(4000)
+			Press_Options()
+			Sleep(1000)
+			Press_Right()
+			Sleep(1000)
 			SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant21.png,+x26 +y160,`nEverything done.`n`nGLHF., Wizard completed,Detection Assistant
 			Sleep(4000)
 			SplashImage, off
@@ -637,8 +655,8 @@ Return
 			}
 		}
 		else{
-			MsgBox, 52, Start wizard?, Start the wizard now?
-			IfMsgBox Yes
+			MsgBox, 52, Start detection wizard?, If you start the wizard, wait until you see the "GG" popup.`nThe wizard will drive into the pit automatically and goes to the menu afterwards.
+				IfMsgBox Yes
 			{
 				Gosub, Detectionwizard
 			}
@@ -868,7 +886,7 @@ Return
 
 				if (StrLen(TelegramBotToken) > 1)
 				{
-					url := "https://api.telegram.org/bot" TelegramBotToken "/sendMessage?text=" TGTime ": Race failed - Lap " TokyoLapCount " - " location ". Clip saved.&chat_id=" TelegramChatID
+					url := "https://api.telegram.org/bot" TelegramBotToken "/sendMessage?text=" TGTime ": Race failed - Lap " TokyoLapCount " - " location ".&chat_id=" TelegramChatID
 					hObject:=ComObjCreate("WinHttp.WinHttpRequest.5.1")
 					hObject.Open("GET",url)
 					hObject.Send()
@@ -1099,9 +1117,9 @@ Return
 					guicontrol,, CurrentLoop, Current Location: %location%
 
 					; Hairpin exit
-					Sleep(9000)
+					Sleep(10500)
 					Accel_On(60)
-					loop 100 {
+					loop 120 {
 						Press_Triangle(delay:=50)
 						Sleep(200)
 					}
@@ -1292,7 +1310,6 @@ Return
 					if(TokyoLapCount = "13")
 					{
 						location := "Finish line"
-
 						FormatTime, TGTime,, MM/dd hh:mm:ss
 						FileAppend, %TGTime% Race finished.`n, log.txt
 						if (StrLen(TelegramBotToken) > 1)
@@ -1343,7 +1360,7 @@ Return
 							for i, c in c2
 							{
 								d2 := Distance(c, color_restart)
-
+								SB_SetText(" Searching restart: " d2 " < 10",2)
 								if (d2 < 10 )
 								{
 									SB_SetText(" Found: " d2 " < 10",2)
@@ -1411,7 +1428,7 @@ Return
 					for i, c in c2
 					{
 						d2 := Distance(c, color_racestart)
-
+						SB_SetText(" Searching Race start: " d2 " < 35",2)
 						if (d2 < 35 )
 						{
 							TokyoRestartFound := true
@@ -1484,7 +1501,7 @@ Return
 						for i, c in tc
 						{
 							td := Distance(c, color_player)
-
+							SB_SetText(" Searching: " td " < 50",2)
 							if (td < 50 ){
 								SB_SetText(" Found: " td " < 50",2)
 								TokyoTurnComplete := true
@@ -1518,7 +1535,7 @@ Return
 						for i, c in tc
 						{
 							td := Distance(c, color_penwarn)
-
+							SB_SetText(" Searching pen warning: " td " < 50",2)
 							if (td < 50 ){
 								SB_SetText(" Found: " td " < 50",2)
 								TokyoPenWarn := true
@@ -1546,7 +1563,7 @@ Return
 						for i, c in tc
 						{
 							td := Distance(c, color_pen)
-
+							SB_SetText(" Searching pen msg: " td " < 40",2)
 							if (td < 40 ){
 								SB_SetText(" Found: " td " < 40",2)
 								guicontrol,, CurrentLoop, Pen received
@@ -1593,7 +1610,7 @@ Return
 						for i, c in tc
 						{
 							td := Distance(c, color_pen)
-
+							SB_SetText(" Searching pen msg: " td " > 10",2)
 							if (td > 10 ){
 								SB_SetText(" Found: " td " > 10",2)
 								TokyoPitstopDone := true
@@ -1639,7 +1656,7 @@ Return
 						for i, c in tc
 						{
 							td := Distance(c, color_pitstop)
-
+							SB_SetText(" Searching pit menu: " td " < 10",2)
 							if (td < 10 ){
 								SB_SetText(" Found: " td " < 10",2)
 								TokyoPitstop := true
