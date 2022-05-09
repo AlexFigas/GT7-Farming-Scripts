@@ -3,6 +3,7 @@
 #MaxHotkeysPerInterval 99000000
 #HotkeyInterval 99000000
 #KeyHistory 0
+#SingleInstance force
 #Include Lib\Gdip.ahk
 #Include Lib\AHK-ViGEm-Bus.ahk
 #Include Lib\__utility__.ahk
@@ -20,51 +21,162 @@ SetDefaultMouseSpeed, 0
 SendMode Input
 
 SetWorkingDir %A_ScriptDir%
-DetectHiddenWindows, On
-#Persistent
-
-Global script_start := A_TickCount
-Global remote_play_offsetY := 71
-Global racecounter := 0
-Global resetcounter := 0
-Global color_pitstop1 := 0xFFFFFF
-Global color_restart1 := 0x6D5223
-Global color_racestart := 0x01FF52
-Global hairpin_delay := 0
-Global PitstopTimings := 0
-Global TelegramBotToken  := ""
-Global TelegramChatID := ""
-Global location := ""
-Global TokyoLapCount := 1
-Global PitstopTimingsArray :=
-Global DynTurnDelay := 0
-Global SaveResetClip := 0
-Global SetEnd := 0
-SetFormat, integerfast, d
-ps_win_width := 640
-ps_win_height := 360
-IniRead, hairpin_delay, config.ini, Vars, hairpin_delay, 0
-IniRead, color_pitstop1, config.ini, Vars, color_pitstop1, 0
-IniRead, RaceCounterTotal, config.ini, Stats, racecountertotal, 0
-IniRead, ResetCounterTotal, config.ini, Stats, resetcountertotal, 0
-IniRead, TelegramBotToken, config.ini, API, TelegramBotToken, 0
-IniRead, TelegramChatID, config.ini, API, TelegramChatID, 0
-IniRead, PitstopTimings, config.ini, Vars, PitStopTimings0, 0
-StringSplit, PitstopTimingsArray, PitstopTimings, `,
-
-IniRead, DynTurnDelay, config.ini, Vars, DynTurnDelay, 0
-IniRead, SaveResetClip, config.ini, Vars, SaveResetClip, 0
-IniRead, color_restart1, config.ini, Vars, color_restart1, 0
-IniRead, color_racestart, config.ini, Vars, color_racestart, 0
-
-SetFormat, FloatFast, 0.2
-creditcountertotal := 825000*racecountertotal/1000000
-StringSplit, PitstopTimingsArray, PitstopTimings, `,
+DetectHiddenWindows, Off
 
 Global controller := new ViGEmDS4()
 controller.SubscribeFeedback(Func("OnFeedback"))
 OnFeedback(largeMotor, smallMotor, lightbarColor){
 }
+Global script_start := A_TickCount
+Global wizardstarted := 0
+Global size_remoteplay := 0
+Global racecounter := 0
+Global resetcounter := 0
+Global racecountertotal := 0
+Global resetcountertotal := 0
+Global PitstopTimings := 0
+Global TelegramBotToken :=
+Global TelegramChatID :=
+Global location := ""
+Global TokyoLapCount := 1
+Global PitstopTimingsArray :=
+Global SetEnd := 0
+
+Global color_player := 0
+Global color_racestart := 0
+Global color_restart := 0
+Global color_lost := 0
+Global color_pen := 0
+Global color_penwarn := 0
+Global color_pitstop := 0
+
+Global pos_racestartX := 0
+Global pos_racestartY := 0
+
+Global pos_pitstopX := 0
+Global pos_pitstopY := 0
+
+Global pos_restartX := 0
+Global pos_restartY := 0
+
+Global pos_lostX := 0
+Global pos_lostY := 0
+
+Global pos_penX := 0
+Global pos_penY := 0
+
+Global pos_penwarnX := 0
+Global pos_penwarnY := 0
+
+Global pos_t1_startX := 0
+Global pos_t1_startY := 0
+Global pos_t1_endX := 0
+Global pos_t1_endY := 0
+
+Global pos_t2_startX := 0
+Global pos_t2_startY := 0
+Global pos_t2_endX := 0
+Global pos_t2_endY := 0
+
+Global pos_t3_startX := 0
+Global pos_t3_startY := 0
+Global pos_t3_endX := 0
+Global pos_t3_endY := 0
+
+Global pos_t4_startX := 0
+Global pos_t4_startY := 0
+Global pos_t4_endX := 0
+Global pos_t4_endY := 0
+
+Global pos_t5_startX := 0
+Global pos_t5_startY := 0
+Global pos_t5_endX := 0
+Global pos_t5_endY := 0
+
+Global pos_t6_startX := 0
+Global pos_t6_startY := 0
+Global pos_t6_endX := 0
+Global pos_t6_endY := 0
+
+Global pos_t7_startX := 0
+Global pos_t7_startY := 0
+Global pos_t7_endX := 0
+Global pos_t7_endY := 0
+
+Global pos_t8_startX := 0
+Global pos_t8_startY := 0
+Global pos_t8_endX := 0
+Global pos_t8_endY := 0
+
+Global pos_t9_startX := 0
+Global pos_t9_startY := 0
+
+Read_Ini()
+{
+IniRead, TelegramBotToken, config.ini, API, TelegramBotToken, 0
+IniRead, TelegramChatID, config.ini, API, TelegramChatID, 0
+IniRead, racecountertotal, config.ini, Stats, racecountertotal, 0
+IniRead, resetcountertotal, config.ini, Stats, resetcountertotal, 0
+;IniRead, PitstopTimings, config.ini, Vars, PitStopTimings0, 0
+;StringSplit, PitstopTimingsArray, PitstopTimings, `,
+
+IniRead, size_remoteplay, config.ini, Vars, size_remoteplay, 0
+
+IniRead, color_player, config.ini, size%size_remoteplay%, color_player, 0
+IniRead, color_pitstop, config.ini, size%size_remoteplay%, color_pitstop, 0
+IniRead, color_restart, config.ini, size%size_remoteplay%, color_restart, 0
+IniRead, color_racestart, config.ini, size%size_remoteplay%, color_racestart, 0
+IniRead, color_pen, config.ini, size%size_remoteplay%, color_pen, 0
+IniRead, pos_racestartX, config.ini, size%size_remoteplay%, pos_racestartX, 0
+IniRead, pos_racestartY, config.ini, size%size_remoteplay%, pos_racestartY, 0
+IniRead, pos_pitstopX, config.ini, size%size_remoteplay%, pos_pitstopX, 0
+IniRead, pos_pitstopY, config.ini, size%size_remoteplay%, pos_pitstopY, 0
+IniRead, pos_restartX, config.ini, size%size_remoteplay%, pos_restartX, 0
+IniRead, pos_restartY, config.ini, size%size_remoteplay%, pos_restartY, 0
+IniRead, pos_penX, config.ini, size%size_remoteplay%, pos_penX, 0
+IniRead, pos_penY, config.ini, size%size_remoteplay%, pos_penY, 0
+IniRead, pos_t1_startX, config.ini, size%size_remoteplay%, pos_t1_startX, 0
+IniRead, pos_t1_startY, config.ini, size%size_remoteplay%, pos_t1_startY, 0
+IniRead, pos_t1_endX, config.ini, size%size_remoteplay%, pos_t1_endX, 0
+IniRead, pos_t1_endY, config.ini, size%size_remoteplay%, pos_t1_endY, 0
+IniRead, pos_t2_startX, config.ini, size%size_remoteplay%, pos_t2_startX, 0
+IniRead, pos_t2_startY, config.ini, size%size_remoteplay%, pos_t2_startY, 0
+IniRead, pos_t2_endX, config.ini, size%size_remoteplay%, pos_t2_endX, 0
+IniRead, pos_t2_endY, config.ini, size%size_remoteplay%, pos_t2_endY, 0
+IniRead, pos_t3_startX, config.ini, size%size_remoteplay%, pos_t3_startX, 0
+IniRead, pos_t3_startY, config.ini, size%size_remoteplay%, pos_t3_startY, 0
+IniRead, pos_t3_endX, config.ini, size%size_remoteplay%, pos_t3_endX, 0
+IniRead, pos_t3_endY, config.ini, size%size_remoteplay%, pos_t3_endY, 0
+IniRead, pos_t4_startX, config.ini, size%size_remoteplay%, pos_t4_startX, 0
+IniRead, pos_t4_startY, config.ini, size%size_remoteplay%, pos_t4_startY, 0
+IniRead, pos_t4_endX, config.ini, size%size_remoteplay%, pos_t4_endX, 0
+IniRead, pos_t4_endY, config.ini, size%size_remoteplay%, pos_t4_endY, 0
+IniRead, pos_t5_startX, config.ini, size%size_remoteplay%, pos_t5_startX, 0
+IniRead, pos_t5_startY, config.ini, size%size_remoteplay%, pos_t5_startY, 0
+IniRead, pos_t5_endX, config.ini, size%size_remoteplay%, pos_t5_endX, 0
+IniRead, pos_t5_endY, config.ini, size%size_remoteplay%, pos_t5_endY, 0
+IniRead, pos_t6_startX, config.ini, size%size_remoteplay%, pos_t6_startX, 0
+IniRead, pos_t6_startY, config.ini, size%size_remoteplay%, pos_t6_startY, 0
+IniRead, pos_t6_endX, config.ini, size%size_remoteplay%, pos_t6_endX, 0
+IniRead, pos_t6_endY, config.ini, size%size_remoteplay%, pos_t6_endY, 0
+IniRead, pos_t7_startX, config.ini, size%size_remoteplay%, pos_t7_startX, 0
+IniRead, pos_t7_startY, config.ini, size%size_remoteplay%, pos_t7_startY, 0
+IniRead, pos_t7_endX, config.ini, size%size_remoteplay%, pos_t7_endX, 0
+IniRead, pos_t7_endY, config.ini, size%size_remoteplay%, pos_t7_endY, 0
+IniRead, pos_t8_startX, config.ini, size%size_remoteplay%, pos_t8_startX, 0
+IniRead, pos_t8_startY, config.ini, size%size_remoteplay%, pos_t8_startY, 0
+IniRead, pos_t8_endX, config.ini, size%size_remoteplay%, pos_t8_endX, 0
+IniRead, pos_t8_endY, config.ini, size%size_remoteplay%, pos_t8_endY, 0
+IniRead, pos_t9_startX, config.ini, size%size_remoteplay%, pos_t9_startX, 0
+IniRead, pos_t9_startY, config.ini, size%size_remoteplay%, pos_t9_startY, 0
+
+return
+}
+Read_Ini()
+SetFormat, FloatFast, 0.2
+creditcountertotal := 825000*racecountertotal/1000000
+;StringSplit, PitstopTimingsArray, PitstopTimings, `,
+
 
 ;- GUI 1 (MAIN) -------------------------------------------------------------------------------------------------
 Icon = %A_ScriptDir%\Assets\GT7_Tokyo.ico
@@ -93,76 +205,22 @@ Gui, Add, Text, x10 y38 w150 h20 CounterLap vcurrentlap +BackgroundTrans, Curren
 Gui, Add, Text, x10 y23 w220 h20 CurrentLoop vcurrentloop +BackgroundTrans, Current Location: -
 Gui, Add, Button, x222 y170 w300 h20 default gGUIReset, Reset
 Gui, Add, Button, x531 y170 w101 h20 default gGUIClose, Exit
-Gui, Add, Button, x12 y80 w200 h20 default gRaceSettingsWindow, Settings: Race
-Gui, Add, Button, x12 y110 w200 h20 default gMachineSettingsWindow, Settings: Machine/Setup
+;Gui, Add, Button, x12 y80 w200 h20 default gRaceSettingsWindow, Settings: Race
+Gui, Add, Button, x12 y110 w200 h20 default gMachineSettingsWindow, Run detection wizard
 Gui, Add, Button, x12 y140 w200 h20 default gNotificationsWindow, Settings: Notifications/API
 Gui, Add, Button, x12 y170 w200 h20 default gDocumentationWindow, Documentation/Ingame Settings
+
+Gui, Add, Button, x152 y80 w60 h21 default gSetSize, Set size
+IniRead, size_remoteplay, config.ini, Vars, size_remoteplay, 0
+Gui, Add, DDL,x12 y80 w130 vsize_remoteplay +AltSubmit Choose%size_remoteplay%, Small (640x540)|Middle (1024x768)|Large (1280x1024)
 Gui, Font, S8 CDefault Bold, Verdana
 Gui, Add, Text, x10 y3 w620 h20 +BackgroundTrans, // TOKYO CONTROL CENTER
 Gui, Add, Statusbar, -Theme Backgroundeeeeee ;#eeeeee, no typo
 SB_SetParts(80,270,190)
-SB_SetText(" Tokyo X ",1)
+SB_SetText(" Tokyo X v3 ",1)
 SB_SetText(" by problemz.",4)
-Gui, Show, x8 y532 h225 w640, GT7 Tokyo // by problemz
+Gui, Show, x1274 y791 h225 w640, GT7 Tokyo // by problemz
 guicontrol,, CurrentLoop, Press START, go go!
-;- GUI 2 (MACHINE/SETUP) ----------------------------------------------------------------------------------------
-;Gui, 2: Add, Picture, x0 y0 w650 h500 , Assets\tokyo_gui.png
-Gui, 2: Add, Groupbox, x10 y5 w490 h100, Hairpin Settings
-Gui, 2: Add, Text, xp+10 yp+20 w200 h20 +BackgroundTrans , Turn Delay:
-Gui, 2: Add, Edit, xp+65 yp-3 w60 vtxthairpindelay gtextchanged, %hairpin_delay%
-Gui, 2: Add, Text, xp+65 yp+3 w200 h20 +BackgroundTrans , (ms)
-Gui, 2: Add, Slider, x180 yp-5 w260 h25 vsliderhairpindelay  Range0-800 Thick20 +ToolTip TickInterval50 gSliderMove,%hairpin_delay%
-Gui, 2: Add, Text, x20 y60 w420 h40 vdeschairpin +BackgroundTrans , Wait %hairpin_delay% ms to turn right after detection: The lower the value, the faster it will turn right.
-Gui, 2: Add, Checkbox, x20 y85 w450 vDynTurnDelay +BackgroundTrans Checkbox  Checked%DynTurnDelay%, Dynamic hairpin turn delays (caluculated by time/speed before turn for optimal turns)
-Gui, 2: Add, Button, x510 y10 w120 h95 +BackgroundTrans gSaveToIni, Save all settings
-
-Gui, 2: Add, Groupbox, x10 y110 w300 h150, Set detection colors
-Gui, 2: Add, Button, xp+10 yp+18 w120 h30 gPit1Color, Grab: Pit stop color
-Gui, 2: Font, S40 CDefault, Verdana
-Gui, 2: Font, c%color_pitstop1%
-Gui, 2: Add, Text, xp+130 yp-24  vcurrentpit1 gcurrentpit1 +BackgroundTrans, ▬
-Gui, 2: Font, ,
-Gui, 2: Font, S20 CDefault, Verdana
-Gui, 2: Add, Text, xp+55 yp+22 +BackgroundTrans, «
-Gui, 2: Font, ,
-Gui, 2: Font, S10 CDefault, Verdana
-Gui, 2: Add, Text, xp+25 yp+10 w200 vcurrentpit2 +BackgroundTrans, %color_pitstop1%
-Gui, 2: Font, ,
-
-Gui, 2: Add, Button, x20 yp+32 w120 h30 gRestartColor, Grab: Restart color
-Gui, 2: Font, S40 CDefault, Verdana
-Gui, 2: Font, c%color_restart1%
-Gui, 2: Add, Text, xp+130 yp-24  vcurrentrestart1 gcurrentrestart1 +BackgroundTrans, ▬
-Gui, 2: Font, ,
-Gui, 2: Font, S20 CDefault, Verdana
-Gui, 2: Add, Text, xp+55 yp+22 +BackgroundTrans, «
-Gui, 2: Font, ,
-Gui, 2: Font, S10 CDefault, Verdana
-Gui, 2: Add, Text, xp+25 yp+10  w200 vcurrentrestart2 +BackgroundTrans, %color_restart1%
-Gui, 2: Font, ,
-
-
-Gui, 2: Add, Button, x20 yp+32 w120 h30 gRaceStartColor, Grab: Race Start color
-Gui, 2: Font, S40 CDefault, Verdana
-Gui, 2: Font, c%color_racestart%
-Gui, 2: Add, Text, xp+130 yp-24  vcurrentracestart1 gcurrentracestart1 +BackgroundTrans, ▬
-Gui, 2: Font, ,
-Gui, 2: Font, S20 CDefault, Verdana
-Gui, 2: Add, Text, xp+55 yp+22 +BackgroundTrans, «
-Gui, 2: Font, ,
-Gui, 2: Font, S10 CDefault, Verdana
-Gui, 2: Add, Text, xp+25 yp+10  w220 vcurrentracestart2 +BackgroundTrans, %color_racestart%
-Gui, 2: Font, ,
-
-
-
-
-
-Gui, 2: Font, S7 CDefault, Verdana
-Gui, 2: Add, Text, x20 yp+28  w280 +BackgroundTrans, Info: Double-click on color field to change manually.
-Gui, 2: Font, ,
-Gui, 2: Add, Groupbox, x320 y110 w310 h150, Other features
-Gui, 2: Add, Checkbox, xp+10 yp+20 w290 vSaveResetClip +BackgroundTrans Checkbox Checked%SaveResetClip%, Experimental: Save clip (last 3 minutes) after a reset.
 	
 ;- GUI 4 (RACE SETTINGS) ----------------------------------------------------------------------------------------
 ;Gui, 4: Add, Picture, x0 y0 w650 h450 , Assets\tokyo_gui.png
@@ -208,6 +266,351 @@ Gui, 5: Add, Edit, x116 y11 w400 vTelegramBotToken Password, %TelegramBotToken%
 Gui, 5: Add, Text, x10 y44 w205 h20 +BackgroundTrans , Telegram Chat ID:
 Gui, 5: Add, Edit, x116 y41 w400 vTelegramChatID Password, %TelegramChatID%
 Gui, 5: Add, Button, x530 y11 w100 h51 +BackgroundTrans gSaveToIni, Save
+Gosub, GrabRemotePlay
+Return
+
+Detectionwizard:
+Gosub, GrabRemotePlay
+wizardstarted := 1
+currentstep := 0
+controller.Axes.LX.SetState(50)
+Sleep(1000)
+SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant00.png,+x26 +y160 B2,Welcome.`nESC to cancel.`nClick when told.`n, 00 - Wizard started,Detection Assistant
+	Sleep(3000)
+controller.Axes.LX.SetState(70)
+Accel_On(50)
+	Press_X()
+	Sleep(4000)
+	Accel_Off()
+	Brake_on(100)
+	
+SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant01.png,+x26 +y160 B2,Double-click the green battery icon now., 01 - Race start,Detection Assistant
+Return
+
+SetSize:
+Gui, Submit, nohide
+IniWrite, %size_remoteplay%, config.ini,Vars, size_remoteplay
+Gosub, GrabRemotePlay
+return
+
+~ESC::
+SplashImage, Off
+wizardstarted := 0
+currentstep := 0
+Return
+
+~LButton:: 
+If (A_TimeSincePriorHotkey<400) and (A_PriorHotkey="~LButton") and (wizardstarted = 1)
+{
+	MouseGetPos, pos_mouseX, pos_mouseY
+	Switch
+	{
+	case currentstep = 0: ; BATTERY
+ 	pixelgetcolor, color_racestart, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %color_racestart%, config.ini,size%size_remoteplay%, color_racestart
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_racestartX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_racestartY
+	SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant02.png,+x26 +y160 ,Detected:`n`nx: %pos_mouseX% | y: %pos_mouseY% `nColor: %color_racestart%,01 - Race start,Detection Assistant
+	currentstep++
+	Sleep(2000)
+	SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant05.png,+x26 +y160,Double-click on the red "Penalty" part now.,03 - Penalty,Detection Assistant
+		
+	case currentstep = 1:
+	pixelgetcolor, color_pen, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %color_pen%, config.ini,size%size_remoteplay%, color_pen
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_penX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_penY
+	SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant06.png,+x26 +y160, Detected:`n`nx: %pos_mouseX% | y: %pos_mouseY% `nColor: %color_racestart%,03 - Penalty,Detection Assistant
+	currentstep++
+	Sleep(2000)
+	SplashImage, %A_ScriptDir%\Assets\t1start.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 1 Start,Detection Assistant
+
+	case currentstep = 2:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t1_startX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t1_startY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t1end.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 1 End,Detection Assistant	
+	
+	case currentstep = 3:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t1_endX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t1_endY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t2start.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 2 Start,Detection Assistant	
+	
+	case currentstep = 4:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t2_startX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t2_startY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t2end.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 2 End,Detection Assistant	
+	
+	case currentstep = 5:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t2_endX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t2_endY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t3start.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 3 Start,Detection Assistant	
+	
+	case currentstep = 6:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t3_startX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t3_startY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t3end.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 3 End,Detection Assistant	
+	
+	case currentstep = 7:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t3_endX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t3_endY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t4start.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 4 Start,Detection Assistant	
+	
+	case currentstep = 8:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t4_startX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t4_startY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t4end.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 4 End,Detection Assistant	
+	
+	case currentstep = 9:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t4_endX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t4_endY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t5start.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 5 Start,Detection Assistant	
+	
+	case currentstep = 10:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t5_startX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t5_startY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t5end.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 5 End,Detection Assistant	
+	
+	case currentstep = 11:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t5_endX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t5_endY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t6start.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 6 Start,Detection Assistant	
+	
+	case currentstep = 12:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t6_startX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t6_startY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t6end.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 6 End,Detection Assistant	
+	
+	case currentstep = 13:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t6_endX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t6_endY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t7start.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 7 Start,Detection Assistant	
+	
+	case currentstep = 14:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t7_startX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t7_startY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t7end.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 7 End,Detection Assistant	
+	
+	case currentstep = 15:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t7_endX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t7_endY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t8start.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 8 Start,Detection Assistant
+	
+	case currentstep = 16:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t8_startX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t8_startY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t8end.png,+x26 +y160,Double-click on the red X location on your minimap now.,04 - Turn 8 End,Detection Assistant	
+	
+	case currentstep = 17:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t8_endX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t8_endY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\t9start.png,+x26 +y160,Double-click on the red player arrow on the minimap.,04 - Pit entrance,Detection Assistant	
+	
+	case currentstep = 18:
+	pixelgetcolor, color_, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_t9_startX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_t9_startY
+	currentstep++
+	Sleep(300)
+	SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant07.png,+x26 +y160,Double-click on the red player arrow on the minimap.,05 - Player Color,Detection Assistant	
+	
+	case currentstep = 19:
+	pixelgetcolor, color_player, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %color_player%, config.ini, size%size_remoteplay%, color_player
+	SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant08.png,+x26 +y160, Detected:`n`nx: %pos_mouseX% | y: %pos_mouseY% `nColor: %color_player%,05 - Player Color,Detection Assistant
+	currentstep++
+	Sleep(2000)
+	SplashImage, Off
+	Read_Ini()
+	Sleep(2000)
+	Press_Options()
+	Sleep(600)
+	Press_Right()
+	Sleep(600)
+	Press_X()
+	Sleep(3000)
+	Brake_off()
+	Accel_On(100)
+	Sleep(4000)
+	controller.Axes.LX.SetState(70)
+	loop 8 {
+	Press_Triangle(delay:=50)
+	Sleep(200)
+	}
+		location := "Assistant running..."
+		guicontrol,, CurrentLoop, Current Location: %location%
+			CheckTokyoTurn(pos_t1_startX, pos_t1_startY)
+			controller.Axes.LX.SetState(36)
+			CheckTokyoTurn(pos_t1_endX, pos_t1_endY)
+			controller.Axes.LX.SetState(35)
+			CheckTokyoTurn(pos_t2_startX, pos_t2_startY)
+			controller.Axes.LX.SetState(52)
+			CheckTokyoTurn(pos_t2_endX, pos_t2_endY)
+			controller.Axes.LX.SetState(40)
+			CheckTokyoTurn(pos_t3_startX, pos_t3_startY)
+			controller.Axes.LX.SetState(40)
+			CheckTokyoTurn(pos_t3_endX, pos_t3_endY)
+			controller.Axes.LX.SetState(70)
+			Accel_On(85)
+			CheckTokyoTurn(pos_t4_startX, pos_t4_startY)
+			controller.Axes.LX.SetState(68)
+			CheckTokyoTurn(pos_t4_endX, pos_t4_endY)
+			controller.Axes.LX.SetState(60)
+			Accel_On(70)
+			CheckTokyoTurn(pos_t5_startX, pos_t5_startY)
+			guicontrol,, CurrentLoop, Current Location: %location%
+			controller.Axes.LX.SetState(42)
+			CheckTokyoTurn(pos_t5_endX, pos_t5_endY)
+			guicontrol,, CurrentLoop, Current Location: %location%
+			controller.Axes.LX.SetState(63)
+			CheckTokyoTurn(pos_t6_startX, pos_t6_startY)
+			controller.Axes.LX.SetState(70)
+			Accel_on(75)
+			CheckTokyoTurn(pos_t6_endX, pos_t6_endY)
+			controller.Axes.LX.SetState(40)
+			Accel_On(100)
+			CheckTokyoTurn(pos_t7_startX, pos_t7_startY)
+			controller.Axes.LX.SetState(40)
+			CheckTokyoTurn(pos_t7_endX, pos_t7_endY)
+			controller.Axes.LX.SetState(70)
+			CheckTokyoTurn(pos_t8_startX, pos_t8_startY)
+			controller.Axes.LX.SetState(65)
+			CheckTokyoTurn(pos_t8_endX, pos_t8_endY)
+			controller.Axes.LX.SetState(30)
+			Sleep(2500)
+			Brake_on(100)
+			Sleep(2200)
+			Brake_off()
+			Accel_On(35)
+			Sleep(4500)
+			Brake_on(100)
+			Accel_Off()
+		SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant15.png,+x26 +y160, Double-click on the yellow penalty warning part.,06 - Penalty warning,Detection Assistant	
+	
+	case currentstep = 20:
+	pixelgetcolor, color_penwarn, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %color_penwarn%, config.ini, size%size_remoteplay%, color_pitstop
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_penwarnX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_penwarnY
+	SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant16.png,+x26 +y160, Detected:`n`nx: %pos_mouseX% | y: %pos_mouseY% `nColor: %color_penwarn%, 06 - Penalty warning,Detection Assistant
+	currentstep++
+	Accel_On(40)
+	Brake_off()
+	controller.Axes.LX.SetState(30)
+	SplashImage, Assets\Tokyo_Assistant09.png,+x26 +y160, Double-click on any part of the white/hard tires.,09 - Pit stop,Detection Assistant	
+		
+	case currentstep = 21:
+	controller.Axes.LX.SetState(50)
+	pixelgetcolor, color_pitstop, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %color_pitstop%, config.ini, size%size_remoteplay%, color_pitstop
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_pitstopX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_pitstopY
+	SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant10.png,+x26 +y160, Detected:`n`nx: %pos_mouseX% | y: %pos_mouseY% `nColor: %color_pitstop%,09 - Pit stop,Detection Assistant
+	currentstep++
+	Sleep(2000)
+	Press_Right()
+	Sleep(400)
+	Press_X()
+	Sleep(400)
+	Press_X()
+	Sleep(12000)
+	Press_Options()
+	Sleep(1000)
+	Press_Right()
+	Sleep(600)
+	Press_Right()
+	Sleep(600)
+	Press_Right()
+	Sleep(600)
+	Press_X()
+	Sleep(2000)
+	Press_X()
+	Sleep(2000)
+	Press_X()
+	Sleep(3000)
+	Press_Right()
+	Sleep(600)
+	Press_Right()
+	Sleep(600)
+	Press_Right()
+	Sleep(2000)
+	Press_X()
+	Sleep(2000)
+	SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant11.png,+x26 +y160,Double-click on the orange Cafè icon part.,10 - Restart,Detection Assistant
+	
+	case currentstep = 22:
+	pixelgetcolor, color_restart, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %color_restart%, config.ini, size%size_remoteplay%, color_restart
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_restartX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_restartY
+	SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant12.png,+x26 +y160,Detected:`n`nx: %pos_mouseX% | y: %pos_mouseY% `nColor: %color_restart%,10 - Restart,Detection Assistant
+	Sleep(2000)
+	currentstep++
+	SplashImage, Assets\Tokyo_Assistant13.png,+x26 +y160,Double-click on the blue meeting place part.,11 - Safe spot,Detection Assistant
+	
+	case currentstep = 23:
+	pixelgetcolor, color_lost, pos_mouseX, pos_mouseY, Slow RGB
+	IniWrite, %color_lost%, config.ini, size%size_remoteplay%, color_lost
+	IniWrite, %pos_mouseX%, config.ini, size%size_remoteplay%, pos_lostX
+	IniWrite, %pos_mouseY%, config.ini, size%size_remoteplay%, pos_lostY
+	SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant14.png,+x26 +y160,Detected:`n`nx: %pos_mouseX% | y: %pos_mouseY% `nColor: %color_lost%,11 - Safe spot,Detection Assistant
+	currentstep++
+	Sleep(2000)
+	SplashImage, %A_ScriptDir%\Assets\Tokyo_Assistant21.png,+x26 +y160,`nEverything done.`n`nGLHF., Wizard completed,Detection Assistant
+	Sleep(4000)
+	SplashImage, off
+	wizardstarted := 0
+	currentstep := 0
+	Reload
+	}
+}
 Return
 
 MachineSettingsWindow:
@@ -225,20 +628,24 @@ if (GetKeyState("LShift", "P") AND GetKeyState("LAlt", "P")){
 	}
 }
 	else{
-	Gui, 2: Show, x6 y757 w639 h265, Settings: Machine/Setup 
+	MsgBox, 52, Start wizard?, Start the wizard now?
+	IfMsgBox Yes
+	{
+	Gosub, Detectionwizard
+	}
 	}
 return
 
 RaceSettingsWindow:
-  Gui, 4: Show, x6 y757 w639 h140, Settings: Race
+  Gui, 4: Show,w639 h140, Settings: Race
 return
 
 NotificationsWindow:
-  Gui, 5: Show, x6 y757 w639 h70, Settings: Notifications/API
+  Gui, 5: Show,w639 h70, Settings: Notifications/API
 return
 
 DocumentationWindow:
-url := "Assets/doc.html"
+url := "./Assets/doc.html"
 
 ; a temporary file, running directory must be writeable
 outputFile := "a$$$$$$.html"
@@ -264,20 +671,13 @@ FileAppend,
 cmdToRun := "cmd /c " . outputFile
 run, %cmdToRun%
 return
+
 SaveToIni:
   Gui, Submit, Hide
-  IniWrite, %txthairpindelay%, config.ini,Vars, hairpin_delay
   IniWrite, %TelegramBotToken%, config.ini,API, TelegramBotToken
   IniWrite, %TelegramChatID%, config.ini,API, TelegramChatID
-  GuiControlGet, DynTurnDelay,,DynTurnDelay
-  IniWrite, %DynTurnDelay%, config.ini,VARS, DynTurnDelay
-  GuiControlGet, SaveResetClip,,SaveResetClip
-  IniWrite, %SaveResetClip%, config.ini,VARS, SaveResetClip
-  IniRead, PitstopTimings, config.ini, Vars, PitStopTimings0, 0
-  StringSplit, PitstopTimingsArray, PitstopTimings, `,
-  IniWrite, %color_pitstop1%, config.ini,Vars, color_pitstop1
-  IniWrite, %color_restart1%, config.ini,Vars, color_restart1
-  IniWrite, %color_racestart%, config.ini,Vars, color_racestart
+  ;IniRead, PitstopTimings, config.ini, Vars, PitStopTimings0, 0
+  ;StringSplit, PitstopTimingsArray, PitstopTimings, `,
 return
 
 SaveNewTimings:
@@ -342,105 +742,6 @@ If (RacePaceChoice = "Risky (faster)")
 	guicontrol,, NewPitstopTimingsArray12, %PitstopTimingsArray12%
 return
 
-TextChanged:
- guiControlGet, txtvar,, txthairpindelay
-	if (txtvar > 800)
-	{
-		GuiControl,, txthairpindelay, 800
-	}
-	
-  GuiControl,, sliderhairpindelay, %txtvar%
-  GuiControl,, deschairpin, Wait %txtvar% ms to turn right after detection: The lower the value, the faster it will turn right.
-  return 
-  
-SliderMove: 
-Gui, Submit, nohide
-GuiControl,, txthairpindelay, %sliderhairpindelay%
-GuiControl,, deschairpin, Wait %sliderhairpindelay% ms to turn right after detection: The lower the value, the faster it will turn right.
-Return
-
-
-Pit1Color:
-	MsgBox, 52, Change Pit stop detection color?, Set new »Pit stop« color?`n(only set when in tire menu!)`n`n"Save all settings" afterwards to save new value to ini.
-	IfMsgBox Yes
-	{
-	gosub, GrabRemotePlay
-	color_pitstop1 := PixelColorSimple(199, 315+remote_play_offsetY)
-	Gui, Font, 
-	GuiControl, +c%color_pitstop1%, currentpit1
-	gui, color
-	GuiControl,, currentpit2, %color_pitstop1%
-	}
-return
-	
-currentpit1:
-if (A_GuiEvent = "DoubleClick")
-{
-	InputBox, setpitstop1, Change Pit stop detection color , Enter color in hex (Default: 0xFFFFFF), , 250,140
-	if !ErrorLevel
-	color_pitstop1 := setpitstop1
-    GuiControl, +c%color_pitstop1%, currentpit1
-	gui, color
-	GuiControl,, currentpit2, %color_pitstop1%
-}
-return	
-
-
-RestartColor:
-	MsgBox, 52, Change Restart detection color?, Set new »Race restart« color?`n(only set when top bar is shown!)`n`n"Save all settings" afterwards to save new value to ini.
-	IfMsgBox Yes
-	{
-	gosub, GrabRemotePlay
-	color_restart1 := PixelColorSimple(162, 114)
-	Gui, Font, 
-	GuiControl, +c%color_restart1%, currentrestart1
-	gui, color
-	
-	GuiControl,, currentrestart2, %color_restart1%
-	}
-return
-	
-currentrestart1:
-if (A_GuiEvent = "DoubleClick")
-{
-	InputBox, setrestart1, Change Restart detection color , Enter color in hex (Café Icon), , 250,140
-	if !ErrorLevel
-	color_restart1 := setrestart1
-    GuiControl, +c%color_restart1%, currentrestart1
-	gui, color
-	GuiControl,, currentrestart2, %color_restart1%
-}
-return	
-	
-
-
-
-RaceStartColor:
-	MsgBox, 52, Change Race Start detection color?, Set new »Race Start« color?`n(only set when you see your nitro battery!)`n`n"Save all settings" afterwards to save new value to ini.
-	IfMsgBox Yes
-	{
-	gosub, GrabRemotePlay
-	color_racestart := PixelColorSimple(182, 437)
-	Gui, Font, 
-	GuiControl, +c%color_racestart%, currentracestart1
-	gui, color
-	
-	GuiControl,, currentracestart2, %color_racestart%
-	}
-return
-	
-currentracestart1:
-if (A_GuiEvent = "DoubleClick")
-{
-	InputBox, setracestart1, Change Race Start detection color , Enter color in hex (Nitro battery), , 250,140
-	if !ErrorLevel
-	color_racestart := setracestart1
-    GuiControl, +c%color_racestart%, currentracestart1
-	gui, color
-	GuiControl,, currentracestart2, %color_racestart%
-}
-return	
-
 ButtonStart:
   SetTimer, UpdateTimer, 1000
   Gui, Submit, NoHide
@@ -458,10 +759,6 @@ ButtonStart:
     Race_Tokyo()
   }
 
-PixelTuning:
-  x_ratio := ps_win_width/640
-  y_ratio := ps_win_height/360
-return
 
 GrabRemotePlay:
   WinGet, remotePlay_id, List, ahk_exe RemotePlay.exe
@@ -477,12 +774,18 @@ GrabRemotePlay:
     If InStr(title, "PS Remote Play")
       break
   }
-    WinMove, ahk_id %id%,, 0, 0, 640, 540
   
+  IniRead, size_remoteplay, config.ini, Vars, size_remoteplay, 0
+  
+  switch size_remoteplay
+  {
+  case 1: WinMove, ahk_id %id%,, 0, 0, 640, 540
+  case 2: WinMove, ahk_id %id%,, 0, 0, 1024, 768
+  case 3: WinMove, ahk_id %id%,, 0, 0, 1280, 1024
+  }
   ControlFocus,, ahk_class %remotePlay_class%
   WinActivate, ahk_id %id%
   GetClientSize(remotePlay_id5, ps_win_width, ps_win_height)
-  gosub, PixelTuning
 return
 
 FightMe:
@@ -548,49 +851,11 @@ ResetRace:
 	SB_SetText(" - RESET INITIATED -",2)
 	guicontrol,, CurrentLoop, Something went wrong, reseting.
 	controller.Axes.LX.SetState(50)
-	if (SaveResetClip = 1)
-	{
-	FormatTime, TGTime,, MM/dd hh:mm:ss
-	FileAppend, %TGTime%: Race failed - Lap %TokyoLapCount% - %location% - Clip saved.`n, log.txt
-	
-	if (TelegramBotToken != NULL)
-	{
-	url := "https://api.telegram.org/bot" TelegramBotToken "/sendMessage?text=" TGTime ": Race failed - Lap " TokyoLapCount " - " location ". Clip saved.&chat_id=" TelegramChatID
-	hObject:=ComObjCreate("WinHttp.WinHttpRequest.5.1")
-	hObject.Open("GET",url)
-	hObject.Send()
-	}
-	SB_SetText(" Saving clip (last 3 minutes)...",2)
-	Sleep(500)
-	PressShare()
-	Sleep(1500)
-	Press_Left()
-	Sleep(600)
-	Press_X()
-	Sleep(600)
-	Press_X()
-	Sleep(600)
-	Press_Down()
-	Sleep(600)
-	Press_Down()
-	Sleep(600)
-	Press_Down()
-	Sleep(600)
-	Press_X()
-	Sleep(1500)
-	PressShare()
-	Sleep(1500)
-	Press_Options()
-	Sleep(600)
-	Press_Right()
-	Sleep(600)
-	Press_X()
-	}
-	else {
+
 	FormatTime, TGTime,, MM/dd hh:mm:ss
 	FileAppend, %TGTime%: Race failed - Lap %TokyoLapCount% - %location%.`n, log.txt
 	
-	if (TelegramBotToken != NULL)
+	if (StrLen(TelegramBotToken) > 1)
 	{
 	url := "https://api.telegram.org/bot" TelegramBotToken "/sendMessage?text=" TGTime ": Race failed - Lap " TokyoLapCount " - " location ". Clip saved.&chat_id=" TelegramChatID
 	hObject:=ComObjCreate("WinHttp.WinHttpRequest.5.1")
@@ -604,7 +869,7 @@ ResetRace:
 	Press_Right()
 	Sleep(500)
 	Press_X()
-	}
+	
 	controller.Axes.LX.SetState(65)
 	IniRead, ResetCounterTotal, config.ini, Stats, resetcountertotal, 0
 	SetFormat, integerfast, d
@@ -617,9 +882,7 @@ ResetRace:
 	Race_Tokyo()
 	return
 
-
 MouseHelp:
-	
   coord=relative
   sleep, 1000
   CoordMode, ToolTip, %coord%
@@ -658,55 +921,26 @@ if (GetKeyState("LShift", "P") AND GetKeyState("LAlt", "P")){
 Sleep(500)
 gosub, PauseLoop
 Reload
+return
 
 Race_Tokyo()
 {
-	IniRead, hairpin_delay, config.ini, Vars, hairpin_delay, 0
-	IniRead, RaceCounterTotal, config.ini, Stats, racecountertotal, 0
-	IniRead, ResetCounterTotal, config.ini, Stats, resetcountertotal, 0
-	SetFormat, integerfast, d
+	Read_Ini()
 	TokyoStart:
-	;- VARIABLES -----------------------------------------------------------------------------
-	SetFormat, integerfast, d
+	;- VARIABLES ----------------------------------------------------------------------------
 	TokyoLapCount := 1
 	maxTime := 200000
-	StringSplit, PitstopTimingsArray, PitstopTimings, `,
-	;- COORDINATES: TURNS --------------------------------------------------------------------
-	TokyoTurn1 := new TokyoTurnContainer(611, 130, 622, 140)
-	TokyoTurn2 := new TokyoTurnContainer(618, 141, 601, 147)
-	TokyoTurn3 := new TokyoTurnContainer(599, 150, 591, 158)
-	TokyoTurn4 := new TokyoTurnContainer(589, 159, 571, 167)
-	TokyoTurn5 := new TokyoTurnContainer(567, 167, 556, 161)
-	TokyoTurn6 := new TokyoTurnContainer(554, 157, 543, 153)
-	TokyoTurn7 := new TokyoTurnContainer(538, 152, 530, 146)
-	TokyoTurn8 := new TokyoTurnContainer(530, 146, 510, 143)
-	;- COORDINATES: PENALTY WARNINGS ---------------------------------------------------------
-	TokyoPenWarning := new TokyoTurnContainer(360, 225, 408, 225)
-	TokyoPenIndicator := new TokyoTurnContainer(366, 203)
-	;- COORDINATES: HAIRPIN TURN -------------------------------------------------------------
-	TokyoHairpinTurn := new TokyoTurnContainer(606, 405)
-	;- COORDINATES: PENALTY WARNINGS ---------------------------------------------------------
-	TokyoPen := new TokyoTurnContainer(360, 225, 408, 225)
-	TokyoPenServed := new TokyoTurnContainer(366, 203)
-	;- COORDINATES: HAIRPIN TURN--------------------------------------------------------------
-	TokyoHairpinTurn := new TokyoTurnContainer(606, 405)
-	;- MISC ----------------------------------------------------------------------------------
-	TokyoPitstop := new TokyoTurnContainer(191, 387, 580, 454)
-	TokyoPitstopEnter := new TokyoTurnContainer(530, 141)
-	TokyoPitstopDone := new TokyoTurnContainer(57, 400)
-	TokyoRestartRace := new TokyoTurnContainer(182, 437, 100, 407)
-	TokyoMFD := new TokyoTurnContainer(557, 453)
+	;StringSplit, PitstopTimingsArray, PitstopTimings, `,
 	;- RACE START ----------------------------------------------------------------------------
-	CheckTokyoRestartOK(TokyoRestartRace.startX, TokyoRestartRace.startY)
-	Sleep(8400)
+	controller.Axes.LX.SetState(65)
+	CheckTokyoRaceStart(pos_racestartX, pos_racestartY)
+	Sleep(7400)
 	SB_SetText(" Race started. Good Luck!",2)
 	controller.Axes.LX.SetState(65)
 	FormatTime, TGTime,, MM/dd hh:mm:ss
 	FileAppend, %TGTime%: Race started.`n, log.txt
-	if (TelegramBotToken != NULL)
+	if (StrLen(TelegramBotToken) > 1)
 	{
-	ToolTip, TEST
-	guicontrol,, CurrentLoop, NICHT LEER
 	url := "https://api.telegram.org/bot" TelegramBotToken "/sendMessage?text=" TGTime ": Race started.&chat_id=" TelegramChatID
 	hObject:=ComObjCreate("WinHttp.WinHttpRequest.5.1")
 	hObject.Open("GET",url)
@@ -716,23 +950,23 @@ Race_Tokyo()
 	labellapcount := HexToDec(TokyoLapCount)
 	guicontrol,, CurrentLap, Current Lap: %labellapcount%/12
 	Accel_On(100)
-	loop 3 {
+	loop 7 {
 		Press_Triangle(delay:=50)
 		Sleep(200)
 	}
 	Sleep(800)
 	controller.Axes.LX.SetState(65)
-	CheckTokyoMFD(TokyoMFD.startX, TokyoMFD.startY)
 ;- 12 LAP LOOP ---------------------------------------------------------------------------
 	loop 12 
 	{
+	Read_Ini()
 		location := "Start/Finish"
 		guicontrol,, CurrentLoop, Current Location: %location%
 		loopStartTime := A_TickCount
 		; Turn 1
 			location := "T1 Start"
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoTurn(TokyoTurn1.startX, TokyoTurn1.startY)
+			CheckTokyoTurn(pos_t1_startX, pos_t1_startY)
 			loop 3 {
 				Press_Triangle(delay:=50)
 				Sleep(200)
@@ -742,32 +976,33 @@ Race_Tokyo()
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
 			Sleep(1000)
 			location := "T1 End"
-			CheckTokyoTurn(TokyoTurn1.endX, TokyoTurn1.endY)
+			CheckTokyoTurn(pos_t1_endX, pos_t1_endY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			controller.Axes.LX.SetState(35)
 			Sleep(1000)
 		; Turn 2
 			location := "T2 Start"
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoTurn(TokyoTurn2.startX, TokyoTurn2.startY)
+			CheckTokyoTurn(pos_t2_startX, pos_t2_startY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			controller.Axes.LX.SetState(52)
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
 			Sleep(1000)
 			location := "T2 End"
-			CheckTokyoTurn(TokyoTurn2.endX, TokyoTurn2.endY)
+			CheckTokyoTurn(pos_t2_endX, pos_t2_endY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			controller.Axes.LX.SetState(40)
 			Sleep(1000)
+			
 		; Turn 3
 			location := "T3 Start"
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoTurn(TokyoTurn3.startX, TokyoTurn3.startY)
+			CheckTokyoTurn(pos_t3_startX, pos_t3_startY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			Sleep(1000)
 			controller.Axes.LX.SetState(40)
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)		
-			CheckTokyoTurn(TokyoTurn3.endX, TokyoTurn3.endY)
+			CheckTokyoTurn(pos_t3_endX, pos_t3_endY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			controller.Axes.LX.SetState(70)
 			Sleep(1000)
@@ -775,12 +1010,12 @@ Race_Tokyo()
 			location := "T4 Start"
 			Accel_On(85)
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoTurn(TokyoTurn4.startX, TokyoTurn4.startY)
+			CheckTokyoTurn(pos_t4_startX, pos_t4_startY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			Sleep(1000)
 			controller.Axes.LX.SetState(68)
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoTurn(TokyoTurn4.endX, TokyoTurn4.endY)
+			CheckTokyoTurn(pos_t4_endX, pos_t4_endY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			controller.Axes.LX.SetState(60)
 			Accel_On(70)
@@ -788,25 +1023,25 @@ Race_Tokyo()
 		; Turn 5
 			location := "T5 Start"
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoTurn(TokyoTurn5.startX, TokyoTurn5.startY)
+			CheckTokyoTurn(pos_t5_startX, pos_t5_startY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			controller.Axes.LX.SetState(42)
 			Sleep(1000)
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoTurn(TokyoTurn5.endX, TokyoTurn5.endY)
+			CheckTokyoTurn(pos_t5_endX, pos_t5_endY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			controller.Axes.LX.SetState(63)
 			Sleep(1000)
 		; Turn 6
 			location := "T6 Start"
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoTurn(TokyoTurn6.startX, TokyoTurn6.startY)
+			CheckTokyoTurn(pos_t6_startX, pos_t6_startY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			controller.Axes.LX.SetState(70)
 			Sleep(1000)
 			Accel_on(75)
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoTurn(TokyoTurn6.endX, TokyoTurn6.endY)
+			CheckTokyoTurn(pos_t6_endX, pos_t6_endY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			controller.Axes.LX.SetState(40)
 			Sleep(1000)
@@ -814,108 +1049,52 @@ Race_Tokyo()
 			location := "T7 Start"
 			Accel_On(100)
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoTurn(TokyoTurn7.startX, TokyoTurn7.startY)
+			CheckTokyoTurn(pos_t7_startX, pos_t7_startY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			controller.Axes.LX.SetState(40)
 			Sleep(1000)
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoTurn(TokyoTurn7.endX, TokyoTurn7.endY)
+			CheckTokyoTurn(pos_t7_endX, pos_t7_endY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			controller.Axes.LX.SetState(70)
 			Sleep(1000)
 		; Turn 8
 			location := "T8 Start"
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoTurn(TokyoTurn8.startX, TokyoTurn8.startY)
+			CheckTokyoTurn(pos_t8_startX, pos_t8_startY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			controller.Axes.LX.SetState(65)
 			Sleep(1000)
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoTurn(TokyoTurn8.endX, TokyoTurn8.endY)
+			CheckTokyoTurn(pos_t8_endX, pos_t8_endY)
 			guicontrol,, CurrentLoop, Current Location: %location%
 			controller.Axes.LX.SetState(30)
-			Sleep(2000)
+			Sleep(4000)
 			Brake_on(100)
-			Sleep(2200)
+			Sleep(1800)
 			Brake_off()
-			Accel_On(35)
-		; Penalty Warning 1
+			Accel_On(40)
+		; Penalty Warning
 			location := "Hairpin Entrance"
 			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoPen1(TokyoPenWarning.startX, TokyoPenWarning.startY)
+			CheckTokyoPenWarn(pos_penwarnX, pos_penwarnY)
+			Accel_On(30)
 			guicontrol,, CurrentLoop, Current Location: %location%
-			Accel_On(32)
-			if (TokyoLapCount=12) { 
-            Accel_On(34)    
-            }
-			controller.Axes.LX.SetState(40)
-			Sleep(1000)
-			; Hairpin Turn
-			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			location := "Hairpin Turn"
-			CheckTokyoHairpinTurn(TokyoHairpinTurn.startX, TokyoHairpinTurn.startY)
-			guicontrol,, CurrentLoop, Current Location: %location%
-			
-			if (DynTurnDelay = 1)
-			{
-				if ((ThairpinS - 6000) > 0) {
-				hairpin_delayn := HexToDec(hairpin_delay - 20 - ( 50 * Floor((ThairpinS - 6000)/1000)))
-					If ( hairpin_delayn <0 ){
-						hairpin_delayn := 0
-					}
-				guicontrol,, CurrentLoop, Turn delay: %hairpin_delayn% (dynamic)	
-				}
-				if ((ThairpinS - 5000) < 0) {
-					hairpin_delayn := HexToDec(hairpin_delay + 50 + ( 20 * Floor((5000 - ThairpinS)/1000) ))
-					guicontrol,, CurrentLoop, Turn delay: %hairpin_delayn% (dynamic)	
-				}
-				if (6000<=ThairpinS>=5000) {
-					hairpin_delayn := HexToDec(hairpin_delay)
-					guicontrol,, CurrentLoop, Turn delay: %hairpin_delayn% (default)
-				}
-			Sleep(hairpin_delayn)	
-			}
-			else
-			{
-			guicontrol,, CurrentLoop, Turn delay: %hairpin_delay% (static)
-			Sleep(hairpin_delay)	
-			}
-			controller.Axes.LX.SetState(100)
-			Sleep(200)
-			Accel_Off()
-			Sleep(4200)
-			Accel_On(45) ;was 40
-			controller.Axes.LX.SetState(60)
-			Accel_Off()
-			Sleep(800)
-			controller.Axes.LX.SetState(40)
-			Accel_On(50)
-			Sleep(5000)
-			controller.Axes.LX.SetState(30)
-			Sleep(5500)
-			Accel_On(80)
-			loop 30 { ; failsafe, if we ever get a reset caused by a cone under the car
-			Press_Triangle(delay:=100)
-			Sleep(200)
-			}
-			; Penalty Warning 2
-			location := "Hairpin exit"
-			CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-			CheckTokyoPen2(TokyoPen.endX, TokyoPen.endY)
-			guicontrol,, CurrentLoop, Current Location: %location%
-			Sleep(1000)
+
+		; Hairpin exit
+		Sleep(9000)
+		Accel_On(60)
+		
 		if (TokyoLapCount <= 11)
 		{
 				location := "Pit entrance"
-				Accel_On(53)
-				controller.Axes.LX.SetState(30)
 				guicontrol,, CurrentLoop, Current Location: %location%
 				CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-				CheckTokyoTurn(TokyoPitstopEnter.startX, TokyoPitstopEnter.startY)
+				CheckTokyoTurn(pos_t9_startX, pos_t9_startY)
 				controller.Axes.LX.SetState(0)
 				Accel_On(55)
 				CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-				CheckTokyoPitstop1(TokyoPitstop.startX, TokyoPitstop.startY)
+				CheckTokyoPitstop(pos_pitstopX, pos_pitstopY)
 				location := "In pit"
 				guicontrol,, CurrentLoop, Current Location: %location%
 				controller.Axes.LX.SetState(50)
@@ -923,9 +1102,9 @@ Race_Tokyo()
 				if (TokyoLapCount = 1) 
 				{
 					SetFormat, integerfast, d
-					location := "In pit: Waiting " Round(PitstopTimingsArray1/1000) " seconds."
+					location := "In pit."
 					guicontrol,, CurrentLoop, %location%
-					Sleep (PitstopTimingsArray1)
+					;Sleep (PitstopTimingsArray1)
 					Press_Up()
 					Sleep (100)
 					Press_X()
@@ -935,9 +1114,9 @@ Race_Tokyo()
 				if (TokyoLapCount = 2) 
 				{
 					SetFormat, integerfast, d
-					location := "In pit: Waiting " Round(PitstopTimingsArray2/1000) " seconds."
+					location := "In pit."
 					guicontrol,, CurrentLoop, %location%
-					Sleep (PitstopTimingsArray2)
+					;Sleep (PitstopTimingsArray2)
 					Press_Up()
 					Sleep (100)
 					Press_X()
@@ -947,9 +1126,9 @@ Race_Tokyo()
 				if (TokyoLapCount = 3)
 				{
 					SetFormat, integerfast, d
-					location := "In pit: Waiting " Round(PitstopTimingsArray3/1000) " seconds."
+					location := "In pit."
 					guicontrol,, CurrentLoop, %location%
-					Sleep (PitstopTimingsArray3)
+					;Sleep (PitstopTimingsArray3)
 					Press_Up()
 					Sleep (100)
 					Press_X()
@@ -959,9 +1138,9 @@ Race_Tokyo()
 				if (TokyoLapCount = 4)
 				{
 					SetFormat, integerfast, d
-					location := "In pit: Waiting " Round(PitstopTimingsArray4/1000) " seconds."
+					location := "In pit."
 					guicontrol,, CurrentLoop, %location%
-					Sleep (PitstopTimingsArray4)
+					;Sleep (PitstopTimingsArray4)
 					Press_Up()
 					Sleep (100)
 					Press_X()
@@ -971,9 +1150,9 @@ Race_Tokyo()
 				if (TokyoLapCount = 5)
 				{
 					SetFormat, integerfast, d
-					location := "In pit: Waiting " Round(PitstopTimingsArray5/1000) " seconds."
+					location := "In pit."
 					guicontrol,, CurrentLoop, %location%
-					Sleep (PitstopTimingsArray5)
+					;Sleep (PitstopTimingsArray5)
 					Press_Up()
 					Sleep (100)
 					Press_X()
@@ -983,9 +1162,9 @@ Race_Tokyo()
 				if (TokyoLapCount = 6)
 				{
 					SetFormat, integerfast, d
-					location := "In pit: Waiting " Round(PitstopTimingsArray6/1000) " seconds."
+					location := "In pit."
 					guicontrol,, CurrentLoop, %location%
-					Sleep (PitstopTimingsArray6)
+					;Sleep (PitstopTimingsArray6)
 					Press_Up()
 					Sleep (100)
 					Press_X()
@@ -993,9 +1172,9 @@ Race_Tokyo()
 				if (TokyoLapCount = 7)
 				{
 					SetFormat, integerfast, d
-					location := "In pit: Waiting " Round(PitstopTimingsArray7/1000) " seconds."
+					location := "In pit."
 					guicontrol,, CurrentLoop, %location%
-					Sleep (PitstopTimingsArray7)
+					;Sleep (PitstopTimingsArray7)
 					Press_Up()
 					Sleep (100)
 					Press_X()
@@ -1005,9 +1184,9 @@ Race_Tokyo()
 					if (TokyoLapCount = 8) 
 					{
 					SetFormat, integerfast, d
-					location := "In pit: Waiting " Round(PitstopTimingsArray8/1000) " seconds."
+					location := "In pit."
 					guicontrol,, CurrentLoop, %location%
-					Sleep (PitstopTimingsArray8)
+					;Sleep (PitstopTimingsArray8)
 					Press_Up()
 					Sleep (100)
 					Press_X()
@@ -1017,9 +1196,9 @@ Race_Tokyo()
 				if (TokyoLapCount = 9) 
 				{
 					SetFormat, integerfast, d
-					location := "In pit: Waiting " Round(PitstopTimingsArray9/1000) " seconds."
+					location := "In pit."
 					guicontrol,, CurrentLoop, %location%
-					Sleep (PitstopTimingsArray9)
+					;Sleep (PitstopTimingsArray9)
 					Press_Up()
 					Sleep (100)
 					Press_X()
@@ -1029,9 +1208,9 @@ Race_Tokyo()
 				if (TokyoLapCount = 10) 
 				{
 					SetFormat, integerfast, d
-					location := "In pit: Waiting " Round(PitstopTimingsArray10/1000) " seconds."
+					location := "In pit."
 					guicontrol,, CurrentLoop, %location%
-					Sleep (PitstopTimingsArray10)
+					;Sleep (PitstopTimingsArray10)
 					Press_Up()
 					Sleep (100)
 					Press_X()
@@ -1041,9 +1220,9 @@ Race_Tokyo()
 				if (TokyoLapCount = 11) 
 				{
 					SetFormat, integerfast, d
-					location := "In pit: Waiting " Round(PitstopTimingsArray11/1000) " seconds."
+					location := "In pit."
 					guicontrol,, CurrentLoop, %location%
-					Sleep (PitstopTimingsArray11)
+					;Sleep (PitstopTimingsArray11)
 					Press_Up()
 					Sleep (100)
 					Press_X()
@@ -1053,9 +1232,9 @@ Race_Tokyo()
 				if (TokyoLapCount = 12) 
 				{
 					SetFormat, integerfast, d
-					location := "In pit: Waiting " Round(PitstopTimingsArray12/1000) " seconds."
+					location := "In pit."
 					guicontrol,, CurrentLoop, %location%
-					Sleep (PitstopTimingsArray12)
+					;Sleep (PitstopTimingsArray12)
 					Press_Up()
 					Sleep (100)
 					Press_X()
@@ -1065,7 +1244,7 @@ Race_Tokyo()
 				controller.Axes.LX.SetState(20)
 				Accel_On(100)
 				CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)	
-				CheckTokyoPenReceived(TokyoPenServed.startX, TokyoPenServed.startY)
+				CheckTokyoPenReceived(pos_penX, pos_penY)
 				location := "Start/Finish"
 				guicontrol,, CurrentLoop, Current Location: %location%
 				controller.Axes.LX.SetState(38)
@@ -1076,12 +1255,13 @@ Race_Tokyo()
 				}
 		}
 		else {
+				CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
+				CheckTokyoTurn(pos_t9_startX, pos_t9_startY)
 				location := "Start/Finish"
 				guicontrol,, CurrentLoop, Current Location: %location%
 				Accel_On(100)
-				controller.Axes.LX.SetState(60)
-				CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
-				CheckTokyoPenServed(TokyoPenServed.startX, TokyoPenServed.startY)
+				controller.Axes.LX.SetState(67)
+				Sleep(8000)
 				}
 				SetFormat, integerfast, d
 				TokyoLapCount++
@@ -1095,14 +1275,13 @@ Race_Tokyo()
 					
 					FormatTime, TGTime,, MM/dd hh:mm:ss
 					FileAppend, %TGTime% Race finished.`n, log.txt
-					if (TelegramBotToken != NULL)
+					if (StrLen(TelegramBotToken) > 1)
 					{
 					url := "https://api.telegram.org/bot" TelegramBotToken "/sendMessage?text=" TGTime ": Race finished.&chat_id=" TelegramChatID
 					hObject:=ComObjCreate("WinHttp.WinHttpRequest.5.1")
 					hObject.Open("GET",url)
 					hObject.Send()
 					}
-					
 					guicontrol,, CurrentLoop, Current Location: %location%
 					guicontrol,, CurrentLap, GG!
 					controller.Axes.LX.SetState(50)
@@ -1133,17 +1312,17 @@ Race_Tokyo()
 					guicontrol,, ResetCounterTotal, Races failed: %resetcountertotal%	
 					guicontrol,, CreditCounterTotal, Credits: ~%creditcountertotal% M
 					UpdateAVG(racecounter, script_start)
-					lapcounter =
-					ProgressRace =
+					lapcounter := 0
+					ProgressRace := 0
 					guicontrol,, RaceProgress, %ProgressRace%
 					loop
 					{
 						restart_found := false
-						c2 := BitGrab(162, 114, 2)
+						c2 := BitGrab(pos_restartX,pos_restartY, 2)
 						for i, c in c2
 							{
-							d2 := Distance(c, color_restart1)
-							SB_SetText(" Searching... " d2 " < 15",2)
+							d2 := Distance(c, color_restart)
+							
 							if (d2 < 15 )
 							{
 								SB_SetText(" Found: " d2 " < 15",2)
@@ -1180,12 +1359,12 @@ Race_Tokyo()
 							SetEnd--
 							guicontrol,, SetEndUD, %SetEnd%
 							guicontrol,, SetEndButton, End after %SetEnd% wins
-							Goto, TokyoStart
+							Race_Tokyo()
 						case SetEnd = 2:
 							SetEnd--
 							guicontrol,, SetEndUD, %SetEnd%
 							guicontrol,, SetEndButton, End after next win
-							Goto, TokyoStart
+							Race_Tokyo()
 					}
 				}
 	}
@@ -1202,16 +1381,16 @@ class TokyoTurnContainer
   }
 }
 
-CheckTokyoRestartOK(x,y, b_size := 1)
+CheckTokyoRaceStart(x,y, b_size := 1)
 {
 turnStart := A_TickCount
     loop
 	{
 		TokyoRestartFound := false
-		c2 := BitGrab(182, 437, 2)
+		c2 := BitGrab(x, y, 2)
 		for i, c in c2
 		{
-			d2 := Distance(c, color_restart2)
+			d2 := Distance(c, color_racestart)
 			
 			if (d2 < 35 )
 			{
@@ -1219,26 +1398,26 @@ turnStart := A_TickCount
 				break
 			}
 		}
-		SB_SetText(" Searching Race start: " d2 " < 15",2)
+		
 		if (A_TickCount - turnStart > 12000) { 
 		; we are lost, where are we?
 		gosub, FindMe
 		}
 	} until TokyoRestartFound = true
-	SB_SetText(" Found Race start: " d2 " < 15",2)
+	SB_SetText(" Found Race start: " d2 " < 35",2)
     return
 }
 FindMe:
 loop 100 {
-		SB_SetText(" Searching safe spot: " d2 " < 15",2)
-		c2 := BitGrab(100, 407, 2)
+		
+		c2 := BitGrab(pos_lostX, pos_lostY, 2)
 		for i, c in c2
 		{
-			d2 := Distance(c, 0x1661A3)
-			;SB_SetText(" Searching... " d2 " < 15",2)
+			d2 := Distance(c, color_lost)
+			
 			if (d2 < 15 )
 			{
-				;SB_SetText(" Found: " d2 " < 15",2)
+				
 				gosub, NotLostAnymore
 			}
 		}
@@ -1272,51 +1451,15 @@ SB_SetText(" Safe spot found! " d2 " < 15",2)
 		Sleep(4000)
 		Press_X()
 		Race_Tokyo()
-CheckTokyoMFD(x,y, b_size := 1)
-{
-    color_dot := 0x8D8B8C
-    TokyoMFD := false
-    tries := 1000 ; we shouldn't need more than 6 tries, but I have seen it loop passed
-    loop {
-	
-      tc := BitGrab(x, y, b_size)       
-		SB_SetText(" Searching... " td " < 120",2)
-      for i, c in tc
-      {
-        td := Distance(c, color_dot)
-        
-        if (td < 120){
-			SB_SetText(" Found: " td " < 120",2)
-            TokyoMFD := true
-            break
-			}
-		else {
-			; Gonna try to automate the mfd checker, why not right?
-			if (tries > 0){
-			SB_SetText(" Searching MFD " td " < 110",2)
-			Press_Left()
-			Sleep(100) 	
-			tries--
-			break	
-      }
-      tries := 1000
-      TokyoMFD := true
-      break		
-		}
-  }
-
-    } until TokyoMFD = true
-    return
-}
+		
 
 
 CheckTokyoTurn(x,y, b_size := 1)
 {
 	turnStart := A_TickCount
-    color_player := 0xDE6E70
     TokyoTurnComplete := false
     loop {
-		SB_SetText(" Searching... " td " < 50",2)
+	
       tc := BitGrab(x, y, b_size)
       for i, c in tc
       {
@@ -1345,22 +1488,22 @@ CheckTokyoTurn(x,y, b_size := 1)
     return
 }
 
-CheckTokyoPen1(x,y, b_size := 1)
+
+
+CheckTokyoPenWarn(x,y, b_size := 1)
 {
 	pen1Start := A_TickCount
-
-    color_pen := 0xFFC10B
-    TokyoPen1 := false
+    TokyoPenWarn := false
     loop {
-	  SB_SetText(" Searching... " td " < 50",2)
+	
       tc := BitGrab(x, y, b_size)
       for i, c in tc
       {
-        td := Distance(c, color_pen)
+        td := Distance(c, color_penwarn)
 			
         if (td < 50 ){
 			SB_SetText(" Found: " td " < 50",2)
-            TokyoPen1 := true
+            TokyoPenWarn := true
             break
         }		
       }
@@ -1371,121 +1514,21 @@ CheckTokyoPen1(x,y, b_size := 1)
 		break
 	}
 
-    } until TokyoPen1 = true
+    } until TokyoPenWarn = true
     return
 }
 
-CheckTokyoHairpinTurn(x,y, b_size := 1)
-{
-	hairpinStart := A_TickCount
-
-    color_hairpinturn := 0xB3B1B2
-    TokyoHairpinTurn := false
-    loop {
-	  SB_SetText(" Searching... " td " < 5",2)
-      tc := BitGrab(x, y, b_size)
-      for i, c in tc
-      {
-        td := Distance(c, color_hairpinturn)
-			
-        if (td < 5){
-			SB_SetText(" Found: " td " < 5",2)
-            TokyoHairpinTurn := true
-            break
-        }
-      }
-	; add recovery so we don't kill run sitting in hairpin
-	; set to 1 minute to start, I had this at 3:33 (200000) on my other file and still won.
-	if (A_TickCount - hairpinStart > 90000) { 
-		
-		GoSub, ResetRace
-		break
-	}
-
-    } until TokyoHairpinTurn = true
-    return
-}
-
-CheckTokyoPen2(x,y, b_size := 1)
-{
-	start := A_TickCount
-    color_pen := 0xFFC10B
-	RecoveryTried := false
-    TokyoPen2 := false
-	
-    loop {
-	  SB_SetText(" Searching... " td " > 60",2)
-      tc := BitGrab(x, y, b_size)
-      for i, c in tc
-      {
-        td := Distance(c, color_pen)
-			
-        if (td > 60 ){
-			SB_SetText(" Found: " td " > 60",2)
-            TokyoPen2 := true
-            break
-        }
-      }
-	if (A_TickCount - start > 24000 AND RecoveryTried = false) {
-			SB_SetText(" We stuck? Starting recovery try.",2)
-			Accel_off()
-			controller.Axes.LX.SetState(50)
-			loop 7 {
-				Press_Square(delay:=50)
-				Sleep(100)
-				}
-			Accel_on(80)
-			Sleep(500)
-			loop 9 {
-				Press_Triangle(delay:=50)
-				Sleep(100)
-				}
-			controller.Axes.LX.SetState(30)
-			RecoveryTried := true
-		}
-		
-	if (A_TickCount - start > 70000) {
-			gosub, ResetRace
-			break
-		}
-
-    } until TokyoPen2 = true
-    return
-}
-
-CheckTokyoPenServed(x,y, b_size := 1)
-{
-    color_penserved := 0xAE1B1E
-    TokyoPenServed := false
-    loop {
-	  SB_SetText(" Searching... " td " > 60",2)
-      tc := BitGrab(x, y, b_size)
-      for i, c in tc
-      {
-        td := Distance(c, color_penserved)
-			
-        if (td > 60 ){
-			SB_SetText(" Found: " td " > 60",2)
-            TokyoPenServed := true
-            break
-        }
-      }
-
-    } until TokyoPenServed = true
-    return
-}
 
 CheckTokyoPenReceived(x,y, b_size := 1)
 {
 	start := A_TickCount
-    color_penreceived := 0xAE1B1E
     TokyoPenReceived := false
     loop {
-	  SB_SetText(" Searching... " td " < 40",2)
+	
       tc := BitGrab(x, y, b_size)
       for i, c in tc
       {
-        td := Distance(c, color_penreceived)
+        td := Distance(c, color_pen)
 		
         if (td < 40 ){
 			SB_SetText(" Found: " td " < 40",2)
@@ -1517,6 +1560,7 @@ CheckTokyoPenReceived(x,y, b_size := 1)
 		}
 
       }
+	  	  
     } until TokyoPenReceived = true
     return
 }
@@ -1525,14 +1569,13 @@ CheckTokyoPitstopDone(x,y, b_size := 1)
 {
 	 pitstopDoneStart := A_TickCount
 
-    color_pitstopdone := 0xFFFFFF
     TokyoPitstopDone := false
     loop {
-	  SB_SetText(" Searching... " td " > 10",2)
+	
       tc := BitGrab(x, y, b_size)
       for i, c in tc
       {
-        td := Distance(c, color_pitstopdone)
+        td := Distance(c, color_pen)
 
         if (td > 10 ){
 			SB_SetText(" Found: " td " > 10",2)
@@ -1559,26 +1602,26 @@ CheckMaxTime(maxTime, loopStartTime, TokyoLapCount)
 if ( A_TickCount - loopStartTime > maxTime AND TokyoLapCount <= 10) {
 				gosub, ResetRace
 			}
-else if (A_TickCount - loopStartTime > maxTime+90000 AND TokyoLapCount > 10)
+else if (A_TickCount - loopStartTime > maxTime+45000 AND TokyoLapCount > 10)
 	{
 	gosub, ResetRace
 	}
 }
 
-CheckTokyoPitstop1(x,y, b_size := 1)
+CheckTokyoPitstop(x,y, b_size := 1)
 {
-	pitstop1Start := A_TickCount
+	pitstopStart := A_TickCount
 	
 	;color_pitstop1 := 0xFFFFFF
 	;color_pitstop1 := 0x818002
     ;color_pitstop1 := 0xFBFB00 ; old color
     TokyoPitstop := false
     loop {
-	  SB_SetText(" Searching... " td " < 10",2)
+	
       tc := BitGrab(x, y, b_size)
       for i, c in tc
       {
-        td := Distance(c, color_pitstop1)
+        td := Distance(c, color_pitstop)
 			
         if (td < 10 ){
 			SB_SetText(" Found: " td " < 10",2)
@@ -1587,7 +1630,7 @@ CheckTokyoPitstop1(x,y, b_size := 1)
         }
       }
 	; add recovery so we don't kill run sitting in pit, havent tested if press down works to get us out
-	if (A_TickCount - pitstop1Start > 60000) {
+	if (A_TickCount - pitstopStart > 60000) {
 		Press_Down()
 		Sleep(300)
 		Press_X()
@@ -1596,7 +1639,6 @@ CheckTokyoPitstop1(x,y, b_size := 1)
 		Sleep(7000)
 		GoSub, ResetRace
 	}
-	guicontrol,, CurrentLoop, Stuck in pit? Press GUI Button.
 
     } until TokyoPitstop = true
     return
