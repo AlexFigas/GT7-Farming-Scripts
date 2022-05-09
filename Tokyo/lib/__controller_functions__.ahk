@@ -12,18 +12,18 @@ GoTo EndControllerFunctionsDef
 
 ; Set the time you want to turn for in miliseconds and how hard (50, 100), 100 being the most, 50 being neutral
 Turn_Right(sleept, inten){
-    t := sleept
-    controller.Axes.LX.SetState(inten)
-    gosub, Turn
-    controller.Axes.LX.SetState(50)
+  t := sleept
+  controller.Axes.LX.SetState(inten)
+  gosub, Turn
+  controller.Axes.LX.SetState(50)
 }
 
 ; Set the time you want to turn for in miliseconds and how hard (0, 50), 0 being the most
 Turn_Left(sleept, inten){
-    t := sleept
-    controller.Axes.LX.SetState(inten)
-    gosub, Turn
-    controller.Axes.LX.SetState(50)
+  t := sleept
+  controller.Axes.LX.SetState(inten)
+  gosub, Turn
+  controller.Axes.LX.SetState(50)
 }
 
 ;;;;;;;;;;;; Simple button press functions
@@ -143,49 +143,45 @@ Brake_Off(){
 }
 ; given time t in miliseconds, turn right for that long, with intensity being how much the turn button is held for
 Turn:
-	t0 := A_TickCount
-	tf := t0+t
-	loop 	{
-        Sleep(100)
-	} until  A_TickCount > tf
-  return
-  
+  t0 := A_TickCount
+  tf := t0+t
+  loop 	{
+    Sleep(100)
+  } until A_TickCount > tf
+return
 
 Press_Options(){
   controller.Buttons.Options.SetState(true)
   Sleep, 50
   controller.Buttons.Options.SetState(false)
-  }
+}
 
 PressShare(){
   controller.Buttons.Share.SetState(true)
   Sleep, 50
   controller.Buttons.Share.SetState(false)
-  }
+}
 
 PressX:
-; Just for menuing, does not hold X down
+  ; Just for menuing, does not hold X down
   controller.Buttons.Cross.SetState(true)
   DllCall("Sleep", "UInt", 200)
   controller.Buttons.Cross.SetState(false)
-  return
+return
 
 PressO:
-; Just for menuing, does not hold O down
+  ; Just for menuing, does not hold O down
   controller.Buttons.Circle.SetState(true)
   DllCall("Sleep", "UInt", 200)
   controller.Buttons.Circle.SetState(false)
-  return
+return
 
 PressRight:
-; For turning
+  ; For turning
   controller.Dpad.SetState("Right")
   Sleep, 50
   controller.Dpad.SetState("None")
-  
 
-  return
-
-
+return
 
 EndControllerFunctionsDef:

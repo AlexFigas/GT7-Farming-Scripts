@@ -8,7 +8,7 @@
   --white-color: #FAFBFC;
   --light-gray-color: #C6CBD1;
   --medium-gray-color: #959DA5;
-  --dark-gray-color: #444D56; 
+  --dark-gray-color: #444D56;
   --bg-color: #F8F8FA;
   --code-bg-color: #F0E8E8;
 }
@@ -53,7 +53,7 @@ hr {
   position: relative;
 }
 
-.tab__container > ul {
+.tab__container>ul {
   position: absolute;
   list-style: none;
   margin: 0;
@@ -91,7 +91,7 @@ hr {
 /* code */
 .code {
   border-radius: 3px;
-  font-family: Space Mono, SFMono-Regular, Menlo,Monaco, Consolas, Liberation Mono, Courier New, monospace;
+  font-family: Space Mono, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
   background: var(--bg-color);
   border: 1px solid var(--code-bg-color);
   color: var(--primary-color-light);
@@ -209,7 +209,7 @@ nav {
   bottom: -6px;
 }
 
-.toggle.open span{
+.toggle.open span {
   background-color: transparent;
 }
 
@@ -266,7 +266,7 @@ table td:first-child {
     grid-template-columns: 70px auto;
   }
 
-  .menu__item{
+  .menu__item {
     display: none;
   }
 
@@ -305,32 +305,34 @@ table td:first-child {
 @keyframes fadeUp {
   0% {
     opacity: 0;
-    transform: translate3d(0,30px,0);
+    transform: translate3d(0, 30px, 0);
   }
+
   100% {
-    transform: translate3d(0,0,0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
 
 .enlarge-image {
   margin-top: 0px;
-    width: 32%;
-    float: center;
-    -webkit-transition: all 0.5s ease-in-out;
-    -moz-transition: all 0.5s ease-in-out;
-    transition: all 0.5s ease-in-out;
+  width: 32%;
+  float: center;
+  -webkit-transition: all 0.5s ease-in-out;
+  -moz-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
 }
+
 .enlarge-image:hover {
-       -webkit-transition: all 0.5s ease-in-out;
-    -moz-transition: all 0.5s ease-in-out;
-    transition: all 0.5s ease-in-out;
-         -moz-transform: scale(3);
--webkit-transform: scale(3);
--o-transform: scale(3);
--ms-transform: scale(3);
-transform: scale(3);
-  
+  -webkit-transition: all 0.5s ease-in-out;
+  -moz-transition: all 0.5s ease-in-out;
+  transition: all 0.5s ease-in-out;
+  -moz-transform: scale(3);
+  -webkit-transform: scale(3);
+  -o-transform: scale(3);
+  -ms-transform: scale(3);
+  transform: scale(3);
+
 }
 
 .marquee-container {
@@ -338,6 +340,7 @@ transform: scale(3);
   overflow: hidden;
   line-height: 20px;
 }
+
 .marquee-container .marquee {
   left: 100%;
   width: 100%;
@@ -346,22 +349,25 @@ transform: scale(3);
   white-space: nowrap;
   animation: marquee 25s linear infinite;
 }
+
 .marquee-container .marquee2 {
   animation-delay: 20s;
 }
+
 .marquee-container shadow {
-  color:  #ffffff;
-color: #616161;
-text-shadow: #e0e0e0 1px 1px 0;
-font-size: 1em;
-vertical-align: middle;
+  color: #ffffff;
+  color: #616161;
+  text-shadow: #e0e0e0 1px 1px 0;
+  font-size: 1em;
+  vertical-align: middle;
 
 }
+
 .marquee-container shadow2 {
-color:  #fe6a6b;
-font-size: 1em;
-text-shadow: rgba(255,255,255,.1) -1px -1px 1px,rgba(0,0,0,.5) 1px 1px 1px;
-vertical-align: middle;
+  color: #fe6a6b;
+  font-size: 1em;
+  text-shadow: rgba(255, 255, 255, .1) -1px -1px 1px, rgba(0, 0, 0, .5) 1px 1px 1px;
+  vertical-align: middle;
 
 
 }
@@ -370,6 +376,7 @@ vertical-align: middle;
   0% {
     left: 100%;
   }
+
   100% {
     left: -100%;
   }

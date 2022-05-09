@@ -2,7 +2,6 @@
 * Only place functions here, no sub routines  *
 ***********************************************/
 
-
 ; Grabs the colors of the pixels (x-b, y-b) to (x+b, y+b)
 ; returns the array of colors
 */
@@ -39,46 +38,43 @@ Gdip_BitmapFromHWND2(hwnd)
 }
 
 range(start, stop:="", step:=1) {
-	static range := { _NewEnum: Func("_RangeNewEnum") }
-	if !step
-		throw "range(): Parameter 'step' must not be 0 or blank"
-	if (stop == "")
-		stop := start, start := 0
-	; Formula: r[i] := start + step*i ; r = range object, i = 0-based index
-	; For a postive 'step', the constraints are i >= 0 and r[i] < stop
-	; For a negative 'step', the constraints are i >= 0 and r[i] > stop
-	; No result is returned if r[0] does not meet the value constraint
-	if (step > 0 ? start < stop : start > stop) ;// start == start + step*0
-		return { base: range, start: start, stop: stop, step: step }
+    static range := { _NewEnum: Func("_RangeNewEnum") }
+    if !step
+        throw "range(): Parameter 'step' must not be 0 or blank"
+    if (stop == "")
+        stop := start, start := 0
+    ; Formula: r[i] := start + step*i ; r = range object, i = 0-based index
+    ; For a postive 'step', the constraints are i >= 0 and r[i] < stop
+    ; For a negative 'step', the constraints are i >= 0 and r[i] > stop
+    ; No result is returned if r[0] does not meet the value constraint
+    if (step > 0 ? start < stop : start > stop) ;// start == start + step*0
+        return { base: range, start: start, stop: stop, step: step }
 }
 
 _RangeNewEnum(r) {
-	static enum := { "Next": Func("_RangeEnumNext") }
-	return { base: enum, r: r, i: 0 }
+    static enum := { "Next": Func("_RangeEnumNext") }
+    return { base: enum, r: r, i: 0 }
 }
 
 _RangeEnumNext(enum, ByRef k, ByRef v:="") {
-	stop := enum.r.stop, step := enum.r.step
-	, k := enum.r.start + step*enum.i
-	if (ret := step > 0 ? k < stop : k > stop)
-		enum.i += 1
-	return ret
+    stop := enum.r.stop, step := enum.r.step
+    , k := enum.r.start + step*enum.i
+    if (ret := step > 0 ? k < stop : k > stop)
+        enum.i += 1
+    return ret
 }
-
 
 Sleep(ms=1)
 {
-		global timeBeginPeriodHasAlreadyBeenCalled
-		if (timeBeginPeriodHasAlreadyBeenCalled != 1)
-		{
-			DllCall("Winmm.dll\timeBeginPeriod", UInt, 1)
-			timeBeginPeriodHasAlreadyBeenCalled := 1
-		}
+    global timeBeginPeriodHasAlreadyBeenCalled
+    if (timeBeginPeriodHasAlreadyBeenCalled != 1)
+    {
+        DllCall("Winmm.dll\timeBeginPeriod", UInt, 1)
+        timeBeginPeriodHasAlreadyBeenCalled := 1
+    }
 
-	DllCall("Sleep", UInt, ms)
+    DllCall("Sleep", UInt, ms)
 }
-
-
 
 PixelColorSimple(pc_x, pc_y)
 {
@@ -114,7 +110,7 @@ GetClientSize(hWnd, ByRef w := "", ByRef h := "")
 
 Distance(c1, c2)
 { ; function by [VxE], return value range = [0, 441.67295593006372]
-return Sqrt((((c1>>16)-(c2>>16))**2)+(((c1>>8&255)-(c2>>8&255))**2)+(((c1&255)-(c1&255))**2))
+    return Sqrt((((c1>>16)-(c2>>16))**2)+(((c1>>8&255)-(c2>>8&255))**2)+(((c1&255)-(c1&255))**2))
 }
 
 ConvertARGB(ARGB, Convert := 0)
@@ -130,7 +126,7 @@ ConvertARGB(ARGB, Convert := 0)
 
 ToolTipper(msg, x := 100, y := 100)
 {
-  if (debug_mode = 1)
-    ToolTip, %msg%, x, y, Screen
-  return
+    if (debug_mode = 1)
+        ToolTip, %msg%, x, y, Screen
+    return
 }
