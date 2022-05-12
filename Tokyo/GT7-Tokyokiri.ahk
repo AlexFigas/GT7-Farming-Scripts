@@ -923,7 +923,7 @@ Return
 			}
 			if (TokyoLapCount <= 11)
 			{
-				if (TokyoLapCount = 2 or TokyoLapCount = 4 or TokyoLapCount = 6 or TokyoLapCount = 8 or TokyoLapCount = 9 or TokyoLapCount = 10 or TokyoLapCount = 11)
+				if (TokyoLapCount = 2 or TokyoLapCount = 4 or TokyoLapCount = 5 or TokyoLapCount = 6 or TokyoLapCount = 7 or TokyoLapCount = 8 or TokyoLapCount = 9 or TokyoLapCount = 10 or TokyoLapCount = 11)
 				{
 					location := "Heading to pit"
 					guicontrol,, CurrentLoop, Current Location: %location%
