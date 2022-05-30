@@ -1,4 +1,0 @@
-julia tz2 carrozzata
-155 2.5 v8 ti
-
-
